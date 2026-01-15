@@ -1,0 +1,64 @@
+[project]
+name = "drf"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.0.1",
+    "django-filter>=25.2",
+    "djangorestframework>=3.16.1",
+    "markdown>=3.10",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+    "ruff>=0.14.12",
+]
+
+# pyproject.toml
+
+[tool.ruff]
+# Longitud de línea (88 es el estándar de Black, 120 es común en Django)
+line-length = 88
+# Versión de Python objetivo (ajústala a la que uses, ej: "py312")
+target-version = "py314"
+
+# Excluir carpetas donde no nos importa el estilo (como las migraciones)
+exclude = [
+    "**/migrations/*.py",
+    ".venv",
+    ".git",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+# Reglas a activar
+select = [
+    "E",   # pycodestyle errors (estilo básico)
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes (errores lógicos, variables no usadas)
+    "I",   # isort (ordenar importaciones automáticamente)
+    "C",   # convention (convenciones de nombres)
+    "UP",  # pyupgrade (te avisa si usas sintaxis vieja de Python)
+    "DJ",  # flake8-django (Reglas específicas para DJANGO)
+    "B",   # flake8-bugbear (encuentra bugs potenciales)
+]
+
+# Reglas a ignorar (opcional, pero estas suelen dar falsos positivos)
+ignore = [
+    "E501", # Ignorar líneas muy largas (deja que el formatter se encargue)
+]
+
+[tool.ruff.lint.isort]
+# Para que Ruff sepa que 'apps' y 'config' son TUS carpetas
+known-first-party = ["apps", "config"]
+# Estilo de imports para Django
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.format]
+# Usar comillas dobles (estándar de la industria)
+quote-style = "double"
+# Indentación con espacios
+indent-style = "space"

@@ -1,0 +1,22 @@
+# .pre-commit-config.yaml
+repos:
+  # 1. Hooks básicos de limpieza (espacios extra, archivos grandes, etc.)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace # Elimina espacios al final de las líneas
+      - id: end-of-file-fixer # Asegura que el archivo termine con una línea vacía
+      - id: check-yaml # Valida sintaxis de archivos YAML
+      - id: check-added-large-files # Evita subir archivos gigantes por error
+
+  # 2. Ruff (Linter y Formatter)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Usamos una versión reciente compatible con tu config
+    rev: v0.14.11
+    hooks:
+      # Linter: Busca errores y ordena imports
+      - id: ruff
+        args: [--fix] # Intenta corregir los errores automáticamente
+
+      # Formatter: Reemplaza a Black
+      - id: ruff-format

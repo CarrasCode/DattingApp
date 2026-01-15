@@ -1,0 +1,46 @@
+# --- Python & General ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- UV & Entornos Virtuales ---
+# La carpeta del entorno virtual creada por uv
+.venv/
+# NOTA: uv.lock SÍ se debe subir al repo (igual que package-lock.json)
+
+# --- Django ---
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Carpetas de archivos estáticos y subidos por usuarios (Dating App)
+# 'media' contendrá las fotos de los usuarios -> NO subir al repo
+media/
+# 'staticfiles' es donde se recolectan los estilos para producción -> generado
+staticfiles/
+
+# --- Variables de Entorno & Secretos ---
+.env
+.env.local
+.env.*
+! .env.example
+
+# --- Herramientas de Calidad (Ruff, Pytest, MyPy) ---
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# --- IDEs (VS Code / PyCharm) ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Windows (Sistema Operativo) ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
