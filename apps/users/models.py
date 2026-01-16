@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from django.contrib.gis.db import models as geomodels  # Importante para GeoDjango
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -94,13 +95,18 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=50)
     bio = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField()
+
     gender = models.CharField(max_length=2, choices=Gender.choices)
     gender_preference = models.CharField(
         max_length=1, choices=GenderPreference.choices, default=GenderPreference.ALL
     )
+
     work = models.CharField(max_length=50, blank=True)
-    location = models.CharField(max_length=100)
-    max_distance = models.IntegerField(default=50)
+
+    # srid=4326 es el estándar GPS (latitud/longitud)
+    location = geomodels.PointField(srid=4326, null=True, blank=True)
+
+    max_distance = models.IntegerField(default=50, help_text=_("Distancia en KM"))
     min_age = models.IntegerField(default=18)
     max_age = models.IntegerField(default=99)
 
@@ -121,15 +127,24 @@ class Profile(models.Model):
 
 class UserPhoto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    custom_user = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, verbose_name="photos"
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, verbose_name="photos"
     )
     image = models.ImageField(upload_to="user_photos/%Y/%m")
-    caption = models.CharField(max_length=100)
+    caption = models.CharField(max_length=100, blank=True)
+
+    # Importante: Saber cuál es la foto de perfil principal
+    is_main = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["created"]
+        ordering = ["-is_main", "-created"]  # La principal primero, luego las nuevas
 
     def __str__(self) -> str:
-        return self.custom_user.email
+        return self.profile.first_name
+
+    def save(self, *args, **kwargs):
+        # Lógica extra: Si marco esta como main, desmarcar las otras
+        if self.is_main:
+            UserPhoto.objects.filter(profile=self.profile).update(is_main=False)
+        super().save(*args, **kwargs)
