@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+sys.path.append(str(BASE_DIR / "apps"))
 
 MEDIA_URL = "/media"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -79,10 +82,24 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        # Usamos el motor de PostGIS, NO el de postgres normal
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        # Nombre que pusimos en el docker-compose
+        "NAME": "dating_db",
+        "USER": "dating_user",
+        "PASSWORD": "dating_password",
+        # 'localhost' porque docker está mapeado a tu máquina
+        "HOST": "db",
+        "PORT": "5432",
     }
 }
 
