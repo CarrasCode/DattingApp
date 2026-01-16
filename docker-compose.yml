@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  # --- SERVICIO DE BASE DE DATOS ---
+  db:
+    image: postgis/postgis:15-3.3
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=dating_db
+      - POSTGRES_USER=dating_user
+      - POSTGRES_PASSWORD=dating_password
+    # No hace falta "ports" si solo conectas desde Django (interno),
+    # pero lo dejamos por si quieres conectarte con un programa externo (DBeaver/PgAdmin).
+    ports:
+      - "5432:5432"
+
+  # --- SERVICIO WEB (TU DJANGO) ---
+  web:
+    build: .
+    # Sobreescribe el comando para usar el server de desarrollo
+    command: python manage.py runserver 0.0.0.0:8000
+    # Mapeamos los archivos de tu PC al contenedor.
+    # Así, si cambias código, se actualiza sin reiniciar (Hot Reloading).
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    # Django necesita saber que la DB existe antes de arrancar
+    depends_on:
+      - db
+    environment:
+      - DEBUG=1
+
+volumes:
+  postgres_data:
