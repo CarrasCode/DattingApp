@@ -11,8 +11,10 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     # Esto asegura que cualquier comando 'python' o 'django-admin' use el entorno virtual
-    VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+    VIRTUAL_ENV=/opt/venv \
+    # Le dice a uv dónde crear el entorno virtual
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
 
 # 4. Instalación de dependencias del SISTEMA (GDAL/PostGIS)
 # Esto es OBLIGATORIO para GeoDjango.
@@ -44,4 +46,4 @@ COPY . .
 EXPOSE 8000
 
 # Cuando esto corra en la nube, usará Gunicorn
-CMD ["gunicorn", "DattingApp.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
