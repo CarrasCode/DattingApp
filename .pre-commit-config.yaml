@@ -5,7 +5,9 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace # Elimina espacios al final de las líneas
+        exclude: ^apps/.*/migrations/
       - id: end-of-file-fixer # Asegura que el archivo termine con una línea vacía
+        exclude: ^apps/.*/migrations/
       - id: check-yaml # Valida sintaxis de archivos YAML
       - id: check-added-large-files # Evita subir archivos gigantes por error
 
