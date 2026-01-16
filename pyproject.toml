@@ -9,6 +9,7 @@ dependencies = [
     "django-filter>=25.2",
     "djangorestframework>=3.16.1",
     "markdown>=3.10",
+    "psycopg2-binary>=2.9.11",
 ]
 
 [dependency-groups]
