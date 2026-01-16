@@ -16,6 +16,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_("El email es obligatorio"))
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
+        # Esto hashea la contraseña al usar AbstractBaseUser
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -74,18 +75,17 @@ class ProfileManager(models.Manager):
 
 
 class Profile(models.Model):
-    GENDER_CHOICES = [
-        ("M", "Male"),
-        ("F", "Female"),
-        ("NB", "Non-Binary"),
-        ("O", "Other"),
-    ]
-    PREFERENCE_CHOICES = [
-        ("M", "Men"),
-        ("F", "Women"),
-        ("B", "Both"),
-        ("A", "All"),
-    ]
+    class Gender(models.TextChoices):
+        MALE = "M", _("Male")
+        FEMALE = "F", _("Female")
+        NON_BINARY = "NB", _("Non-Binary")
+        OTHER = "O", _("Other")
+
+    class GenderPreference(models.TextChoices):
+        MEN = "M", _("Men")
+        WOMEN = "F", _("Women")
+        BOTH = "B", _("Both")
+        ALL = "A", _("All")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     custom_user = models.OneToOneField(
@@ -94,9 +94,9 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=50)
     bio = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField()
-    gender = models.CharField(max_length=2, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=2, choices=Gender.choices)
     gender_preference = models.CharField(
-        max_length=1, choices=PREFERENCE_CHOICES, default="A"
+        max_length=1, choices=GenderPreference.choices, default=GenderPreference.ALL
     )
     work = models.CharField(max_length=50, blank=True)
     location = models.CharField(max_length=100)
