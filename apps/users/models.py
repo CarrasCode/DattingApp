@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
 )
 from django.contrib.gis.db import models as geomodels  # Importante para GeoDjango
 from django.db import models
+from django.db.models.functions import ExtractYear
 from django.utils.translation import gettext_lazy as _
 
 
@@ -55,13 +56,12 @@ class ProfileManager(models.Manager):
 
     def with_age(self):
         """
-        Anota la edad calculada para poder filtrar por ella.
+        Anota la edad calculada usando AGE() para poder filtrar por ella.
         """
-        today = date.today()
+
         return self.annotate(
-            calculated_age=models.ExpressionWrapper(
-                today.year - models.F("birth_date__year"),
-                output_field=models.IntegerField(),
+            calculated_age=ExtractYear(
+                models.Func(models.F("birth_date"), function="AGE")
             )
         )
 
