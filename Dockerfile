@@ -1,49 +1,72 @@
-FROM python:3.14-slim-bookworm
+# ==========================================
+# ETAPA 1: BUILDER
+# Objetivo: Instalar herramientas pesadas para compilar dependencias,
+# pero esta imagen se descartará al final.
+# ==========================================
+FROM python:3.14-slim-bookworm AS builder
 
-# 2. Copiamos 'uv' desde su imagen oficial (Best Practice)
-# Esto es mucho más seguro y rápido que instalarlo con curl o pip
+# Traemos 'uv' directamente de su imagen oficial.
+# Es más rápido y seguro que instalarlo manualmente con curl/pip.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# 3. Variables de Entorno
-# - PYTHONUNBUFFERED: Para ver los logs de Django en tiempo real
-# - UV_COMPILE_BYTECODE: Hace que uv compile los .pyc al instalar (arranque más rápido)
+# Configuración para 'uv':
+# UV_COMPILE_BYTECODE: Compila a .pyc ahora para que el arranque final sea veloz.
+# UV_PROJECT_ENVIRONMENT: Define la ubicación fija del entorno virtual.
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/venv
 
-ENV PYTHONUNBUFFERED=1 \
-    UV_COMPILE_BYTECODE=1 \
-    # Esto asegura que cualquier comando 'python' o 'django-admin' use el entorno virtual
-    VIRTUAL_ENV=/opt/venv \
-    # Le dice a uv dónde crear el entorno virtual
-    UV_PROJECT_ENVIRONMENT=/opt/venv \
-    PATH="/opt/venv/bin:$PATH"
+WORKDIR /app
 
-# 4. Instalación de dependencias del SISTEMA (GDAL/PostGIS)
-# Esto es OBLIGATORIO para GeoDjango.
+# Instalamos dependencias de SISTEMA para COMPILACIÓN.
+# 'libgdal-dev' y 'build-essential' son pesados pero obligatorios
+# [para construir las librerías de GeoDjango.
 RUN apt-get update && apt-get install -y \
     binutils \
     libproj-dev \
-    gdal-bin \
     libgdal-dev \
-    # Limpiamos caché para que la imagen pese menos
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. Definimos el directorio de trabajo
-WORKDIR /app
-
-
-# 6. Copiamos SOLO los archivos de dependencias primero
-# Esto permite aprovechar la caché de Docker. Si no cambias dependencias,
-# Docker se salta este paso y la construcción es instantánea.
+# Copiamos solo los ficheros de requisitos para aprovechar la caché de Docker.
+# Si no cambian estos archivos, Docker se salta el paso siguiente.
 COPY pyproject.toml uv.lock ./
 
-# 7. Instalamos las dependencias con uv
-# --frozen: Usa exactamente las versiones del uv.lock (seguridad)
+# Creamos el entorno virtual en /opt/venv.
+# Las librerías se compilan usando las herramientas pesadas de arriba.
 RUN uv sync --frozen
 
-# 8. Copiamos el resto del código (apps, config, manage.py...)
+# ==========================================
+# ETAPA 2: FINAL (Producción)
+# Objetivo: Una imagen ligera que solo contiene lo necesario para ejecutar.
+# ==========================================
+FROM python:3.14-slim-bookworm
+
+# PYTHONUNBUFFERED: Fuerza a que los logs salgan en tiempo real (vital para Docker).
+# VIRTUAL_ENV: Activa el entorno virtual automáticamente para todos los comandos.
+# PATH: Asegura que los ejecutables del venv tengan prioridad.
+ENV PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
+
+WORKDIR /app
+
+# Instalamos dependencias de SISTEMA para EJECUCIÓN (Runtime).
+# Usamos 'gdal-bin' (librerías compartidas) en lugar de la versión '-dev'.
+# Esto ahorra cientos de MB al no incluir cabeceras ni compiladores.
+RUN apt-get update && apt-get install -y \
+    binutils \
+    gdal-bin \
+    libgdal32 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiamos el entorno virtual YA PREPARADO desde la etapa 'builder'.
+# Nos traemos las librerías de Python listas y dejamos atrás la "basura" de compilación.
+COPY --from=builder /opt/venv /opt/venv
+
+# Copiamos el código fuente de la aplicación.
 COPY . .
 
-# 9. Exponemos el puerto (informativo)
 EXPOSE 8000
 
-# Cuando esto corra en la nube, usará Gunicorn
+# Ejecutamos Gunicorn vinculando al puerto 8000.
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
