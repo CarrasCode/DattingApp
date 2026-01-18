@@ -1,5 +1,4 @@
 import uuid
-from datetime import date
 
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -10,6 +9,8 @@ from django.contrib.gis.db import models as geomodels  # Importante para GeoDjan
 from django.db import models
 from django.db.models.functions import ExtractYear
 from django.utils.translation import gettext_lazy as _
+
+from .utils import calculate_age
 
 
 class CustomUserManager(BaseUserManager):
@@ -117,12 +118,7 @@ class Profile(models.Model):
 
     @property
     def age(self):
-        today = date.today()
-        return (
-            today.year
-            - self.birth_date.year
-            - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
-        )
+        return calculate_age(self.birth_date)
 
 
 class UserPhoto(models.Model):
