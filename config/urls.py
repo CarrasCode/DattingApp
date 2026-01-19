@@ -21,5 +21,5 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     # Usamos 'api/' como prefijo estándar para backend
-    path("api/users/", include("apps.users.urls")),
+    path("api/users/", include("users.urls")),
 ]
