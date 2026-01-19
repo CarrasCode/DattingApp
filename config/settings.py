@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "users",
     "matches",
     "chat",
@@ -157,4 +158,9 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,  # Al refrescar, te da uno nuevo y anula el viejo
+    "BLACKLIST_AFTER_ROTATION": True,  # El viejo va directo a la lista negra
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": os.environ.get("JWT_SIGNING_KEY", SECRET_KEY),
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
