@@ -18,7 +18,7 @@ urlpatterns = [
     # --- NUEVOS ENDPOINTS PARA LOGIN (JWT) ---
     path("auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("aut/logout", LogoutView.as_view(), name="token_logout"),
+    path("auth/logout/", LogoutView.as_view(), name="token_logout"),
     # Profile endpoints (generados por el router)
     path("", include(router.urls)),
 ]
