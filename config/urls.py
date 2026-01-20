@@ -15,6 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -23,3 +25,8 @@ urlpatterns = [
     # Usamos 'api/' como prefijo estándar para backend
     path("api/users/", include("users.urls")),
 ]
+
+# Esto permite que cuando entres a http://localhost:8000/media/foto.jpg, Django      la muestre.
+# En producción, esto lo hará Nginx o S3, no Django.
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
