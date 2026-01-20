@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from ..models import Profile
 
@@ -10,11 +11,25 @@ User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
+    refresh = serializers.SerializerMethodField()
+    access = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["email", "password", "password_confirm"]
+        fields = ["email", "password", "password_confirm", "refresh", "access"]
         extra_kwargs = {"password": {"write_only": True}}
+
+    def get_refresh(self, instance):
+        # Optimizacion: Generamos el token una vez y lo guardamos en la instancia temporalmente
+        if not hasattr(instance, "_cached_token"):
+            instance._cached_token = RefreshToken.for_user(instance)
+        return str(instance._cached_token)
+
+    def get_access(self, instance):
+        # Reutilizamos el token generado en get_refresh (o lo creamos si este se llama primero)
+        if not hasattr(instance, "_cached_token"):
+            instance._cached_token = RefreshToken.for_user(instance)
+        return str(instance._cached_token.access_token)
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password_confirm"]:
