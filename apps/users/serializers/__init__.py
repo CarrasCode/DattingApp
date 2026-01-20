@@ -1,5 +1,5 @@
 from .auth import UserRegistrationSerializer
-from .entities import UserPhotoSerializer
+from .entities import UserPhotoSerializer, UserPhotoUploadSerializer
 from .profiles import (
     PrivateProfileSerializer,
     ProfileWriteSerializer,
@@ -12,4 +12,6 @@ __all__ = [
     "PrivateProfileSerializer",
     "ProfileWriteSerializer",
     "PublicProfileSerializer",
+    "UserPhotoSerializer",
+    "UserPhotoUploadSerializer",
 ]
