@@ -1,5 +1,8 @@
 from typing import Any
 
+from django.contrib.gis.db.models.functions import (
+    Distance as DistanceFunc,
+)  # Renombramos para no confundir
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
@@ -72,11 +75,29 @@ class ProfileViewSet(
         Con select_related y prefetch_related, Django hace JOINS inteligentes
         y lo reduce a solo 2 queries.
         """
-        return (
+
+        qs = (
             Profile.objects.select_related("custom_user")
             .prefetch_related("photos")
             .all()
         )
+        # 2. Obtenemos la ubicación del usuario que hace la petición
+        # OJO: Puede ser que el usuario nuevo aún no tenga ubicación (sea None)
+        user: Any = self.request.user
+        user_profile = user.profile
+        if user_profile.location:
+            # 3. Anotación Geoespacial
+            # Calculamos la distancia desde 'location' (campo del perfil ajeno)
+            # hasta 'user_profile.location' (mi ubicación).
+            # El resultado se guarda en un atributo virtual llamado 'distance_obj'
+            qs = qs.annotate(
+                distance_obj=DistanceFunc("location", user_profile.location)
+            )
+
+            # (Opcional) Ordenar por cercanía
+            qs = qs.order_by("distance_obj")
+
+        return qs
 
     # --- SERIALIZADOR DINÁMICO ---
     def get_serializer_class(self) -> Any:

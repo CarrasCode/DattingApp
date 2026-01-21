@@ -17,7 +17,7 @@ class PublicProfileSerializer(serializers.ModelSerializer):
     # No se envía las coordenadas del otro usuario al frontend.
     # Envías la "distancia calculada" (ej: "A 5 km").
     # Este campo lo calcularemos dinámicamente en la query (lo veremos luego).
-    distance_km = serializers.IntegerField(read_only=True, required=False)
+    distance_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -31,6 +31,19 @@ class PublicProfileSerializer(serializers.ModelSerializer):
             "photos",
             "distance_km",  # Campo extra que vendrá anotado desde la base de datos
         ]
+
+    def get_distance_km(self, obj):
+        """
+        Este método se ejecuta por cada perfil para extraer el valor.
+        """
+        # 1. Verificamos si la vista hizo la anotación (annotate)
+        # Si el usuario no tiene ubicación, 'distance_obj' no existirá.
+        if not hasattr(obj, "distance_obj") or obj.distance_obj is None:
+            return None
+
+        # 2. GeoDjango devuelve un objeto Distance.
+        # Podemos acceder a .km, .m, .mi (millas), etc.
+        return int(obj.distance_obj.km)  # Convertimos a entero (5.4 km -> 5 km)
 
 
 class PrivateProfileSerializer(PublicProfileSerializer):
