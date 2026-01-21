@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import date
 from io import BytesIO
 
 from django.contrib.auth.models import (
@@ -53,9 +54,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class ProfileManager(models.Manager):
+class ProfileQuerySet(models.QuerySet):
     """
-    Manager personalizado para agregar métodos de consulta
+    QuerySet personalizado para agregar métodos de consulta
     relacionados con la edad
     """
 
@@ -63,7 +64,6 @@ class ProfileManager(models.Manager):
         """
         Anota la edad calculada usando AGE() para poder filtrar por ella.
         """
-
         return self.annotate(
             calculated_age=ExtractYear(
                 models.Func(models.F("birth_date"), function="AGE")
@@ -72,12 +72,43 @@ class ProfileManager(models.Manager):
 
     def in_age_range(self, min_age, max_age):
         """
-        Filtra perfiles por rango de edad.
-        Método de conveniencia para queries comunes.
+        Filtra perfiles por rango de edad calculando el rango de fechas de nacimiento.
+        Evita usar AGE() en el WHERE para mejorar performance y compatibilidad.
         """
-        return self.with_age().filter(
-            calculated_age__gte=min_age, calculated_age__lte=max_age
+        today = date.today()
+
+        # Fecha máxima de nacimiento para tener al menos min_age años
+        try:
+            latest_birth_date = today.replace(year=today.year - min_age)
+        except ValueError:
+            # En caso de bisiesto (29 feb) y año no bisiesto, usamos 28 feb
+            latest_birth_date = today.replace(year=today.year - min_age, day=28)
+
+        # Fecha mínima de nacimiento para tener como máximo max_age años
+        # (Es decir, ser menor de max_age + 1)
+        try:
+            earliest_birth_date_limit = today.replace(year=today.year - (max_age + 1))
+        except ValueError:
+            earliest_birth_date_limit = today.replace(
+                year=today.year - (max_age + 1), day=28
+            )
+
+        # Filtro:
+        # birth_date <= latest_birth_date  => Ya cumplió min_age
+        # birth_date > earliest_birth_date_limit => No ha cumplido max_age + 1
+        return self.filter(
+            birth_date__lte=latest_birth_date, birth_date__gt=earliest_birth_date_limit
         )
+
+
+class ProfileManager(models.Manager.from_queryset(ProfileQuerySet)):
+    """
+    Manager que hereda los métodos del QuerySet personalizado.
+    Esto ayuda a que herramientas de análisis estático (como Pylance)
+    detecten los métodos correctamente.
+    """
+
+    pass
 
 
 class Profile(models.Model):
@@ -90,7 +121,6 @@ class Profile(models.Model):
     class GenderPreference(models.TextChoices):
         MEN = "M", _("Men")
         WOMEN = "F", _("Women")
-        BOTH = "B", _("Both")
         ALL = "A", _("All")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
