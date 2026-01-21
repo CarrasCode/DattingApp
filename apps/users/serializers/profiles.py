@@ -5,19 +5,13 @@ from ..validators import validate_adult_age
 from .entities import UserPhotoSerializer
 
 
-class PublicProfileSerializer(serializers.ModelSerializer):
+class BaseProfileSerializer(serializers.ModelSerializer):
     """
-    Datos seguros que cualquier usuario puede ver de otro.
-    SIN email, SIN coordenadas exactas, SIN configuración.
+    Clase Base de Perfil, hecho para heredar
     """
 
     age = serializers.ReadOnlyField()
     photos = UserPhotoSerializer(many=True, read_only=True)
-
-    # No se envía las coordenadas del otro usuario al frontend.
-    # Envías la "distancia calculada" (ej: "A 5 km").
-    # Este campo lo calcularemos dinámicamente en la query (lo veremos luego).
-    distance_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -29,7 +23,23 @@ class PublicProfileSerializer(serializers.ModelSerializer):
             "age",
             "gender",
             "photos",
-            "distance_km",  # Campo extra que vendrá anotado desde la base de datos
+        ]
+
+
+class PublicProfileSerializer(BaseProfileSerializer):
+    """
+    Datos seguros que cualquier usuario puede ver de otro.
+    SIN email, SIN coordenadas exactas, SIN configuración.
+    """
+
+    # No se envía las coordenadas del otro usuario al frontend.
+    # Envías la "distancia calculada" (ej: "A 5 km").
+    # Este campo lo calcularemos dinámicamente en la query (lo veremos luego).
+    distance_km = serializers.SerializerMethodField()
+
+    class Meta(BaseProfileSerializer.Meta):
+        fields = BaseProfileSerializer.Meta.fields + [
+            "distance_km",
         ]
 
     def get_distance_km(self, obj):
@@ -46,9 +56,9 @@ class PublicProfileSerializer(serializers.ModelSerializer):
         return int(obj.distance_obj.km)  # Convertimos a entero (5.4 km -> 5 km)
 
 
-class PrivateProfileSerializer(PublicProfileSerializer):
+class PrivateProfileSerializer(BaseProfileSerializer):
     """
-    Hereda del público y AÑADE los datos sensibles.
+    AÑADE los datos sensibles.
     """
 
     #  Mostrar el email del usuario (que está en otra tabla)
@@ -58,11 +68,10 @@ class PrivateProfileSerializer(PublicProfileSerializer):
     # Convertimos el objeto Point a un array [lat, lng] fácil para Angular
     location = serializers.SerializerMethodField()
 
-    class Meta(PublicProfileSerializer.Meta):
-        # Tomamos los campos públicos y añadimos los privados
-        fields = PublicProfileSerializer.Meta.fields + [
+    class Meta(BaseProfileSerializer.Meta):
+        fields = BaseProfileSerializer.Meta.fields + [
             "email",
-            "birth_date",  # Yo sí necesito ver mi fecha para editarla
+            "birth_date",
             "gender_preference",
             "max_distance",
             "min_age",
