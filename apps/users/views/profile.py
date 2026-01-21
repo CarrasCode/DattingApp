@@ -4,59 +4,22 @@ from django.contrib.gis.db.models.functions import (
     Distance as DistanceFunc,
 )  # Renombramos para no confundir
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, mixins, status, viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, ValidationError
-from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAuthenticated
 
-from .filters import ProfileFilter
-from .models import Profile, ProfileQuerySet, UserPhoto
-from .permissions import HasProfile, IsOwnerOrReadOnly
-from .serializers import (
+from ..filters import ProfileFilter
+from ..models import Profile, ProfileQuerySet
+from ..permissions import IsOwnerOrReadOnly
+from ..serializers import (
     PrivateProfileSerializer,
     ProfileWriteSerializer,
     PublicProfileSerializer,
-    UserPhotoSerializer,
-    UserPhotoUploadSerializer,
-    UserRegistrationSerializer,
 )
 
 
-# --- 1. VISTA DE REGISTRO (CreateAPIView) ---
-# Usamos CreateAPIView porque solo queremos una acción: POST.
-# No necesitamos listar usuarios ni borrarlos aquí.
-class UserRegistrationView(generics.CreateAPIView):
-    serializer_class = UserRegistrationSerializer
-    permission_classes = [AllowAny]  # Importante: El registro debe ser público
-
-
-class LogoutView(APIView):
-    """
-    Vista para cerrar sesión.
-    Recibe el 'refresh_token' y lo pone en la lista negra para que no pueda volver a usarse.
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        refresh_token = request.data.get("refresh")
-
-        if not refresh_token:
-            raise ValidationError({"detail": "El campo 'refresh' es obligatorio."})
-
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception:
-            raise ValidationError({"detail": "Token inválido o expirado."}) from None
-
-
-# --- 2. VIEWSET DE PERFILES (ModelViewSet) ---
+# --- VIEWSET DE PERFILES (ModelViewSet) ---
 # Usamos GenericViewSet + los Mixins específicos que SI queremos.
 # Quitamos CreateModelMixin y DestroyModelMixin.
 class ProfileViewSet(
@@ -168,25 +131,3 @@ class ProfileViewSet(
             return self.retrieve(request)
 
         return self.update(request, partial=request.method == "PATCH")
-
-
-class UserPhotoViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, HasProfile]
-    # Estos parsers son OBLIGATORIOS para subir archivos
-    parser_classes = (MultiPartParser, FormParser)
-
-    def get_queryset(self) -> Any:
-        # Solo mis fotos
-        return UserPhoto.objects.filter(profile__custom_user=self.request.user)
-
-    def get_serializer_class(self) -> Any:
-        if self.action == "create":
-            return UserPhotoUploadSerializer
-        return UserPhotoSerializer
-
-    def perform_create(self, serializer):
-        user: Any = self.request.user
-        # Al guardar, inyectamos el perfil del usuario automáticamente
-        # para que no tenga que enviarlo en el form-data
-
-        serializer.save(profile=user.profile)
