@@ -12,6 +12,8 @@ dependencies = [
     "psycopg2-binary>=2.9.11",
     "Pillow",
     "djangorestframework-simplejwt>=5.5.1",
+    "django-cleanup>=9.0.0",
+
 ]
 
 [dependency-groups]

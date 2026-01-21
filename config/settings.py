@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "users",
     "matches",
     "chat",
+    # django_cleanup tiene que ir ultima
+    "django_cleanup.apps.CleanupConfig",
 ]
 
 MIDDLEWARE = [
