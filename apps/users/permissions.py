@@ -1,3 +1,5 @@
+from typing import Any
+
 from rest_framework import permissions
 
 
@@ -15,3 +17,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         # 2. Si quiere editar, comprobamos si el usuario de la petición
         # es el dueño del objeto.
         return obj.custom_user == request.user
+
+
+class HasProfile(permissions.BasePermission):
+    message = "Debes crear un perfil antes de realizar esta acción."
+
+    def has_permission(self, request, view) -> Any:
+        # Si no está logueado, fallará IsAuthenticated primero, así que aquí asumimos que lo está.
+        return hasattr(request.user, "profile")
