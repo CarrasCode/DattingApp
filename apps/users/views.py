@@ -3,17 +3,20 @@ from typing import Any
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Profile
-from .permissions import IsOwnerOrReadOnly
+from .models import Profile, UserPhoto
+from .permissions import HasProfile, IsOwnerOrReadOnly
 from .serializers import (
     PrivateProfileSerializer,
     ProfileWriteSerializer,
     PublicProfileSerializer,
+    UserPhotoSerializer,
+    UserPhotoUploadSerializer,
     UserRegistrationSerializer,
 )
 
@@ -88,6 +91,25 @@ class ProfileViewSet(
         # 3. Lectura general (Listar/Ver otros) -> Serializador público seguro
         return PublicProfileSerializer
 
+    def get_object(self):
+        """
+        - Si la acción es 'me', devuelve el perfil del usuario logueado.
+        - Si es otra acción (ej: /profiles/5/), usa la lógica normal (por ID).
+        """
+        if self.action == "me":
+            queryset = self.get_queryset()
+            user = self.request.user
+
+            try:
+                obj = queryset.get(custom_user=user)
+                # IMPORTANTE: Check de permisos de objeto manual porque no pasamos por get_object normal
+                self.check_object_permissions(self.request, obj)
+                return obj
+            except Profile.DoesNotExist:
+                raise NotFound("No existe un perfil para este usuario.") from None
+
+        return super().get_object()
+
     # --- ENDPOINT ESPECIAL: "ME" ---
     # URL: /api/users/profile/me/
     # Esto ahorra al frontend tener que guardar el ID del usuario.
@@ -97,31 +119,29 @@ class ProfileViewSet(
         Endpoint para obtener o editar el perfil del usuario actual.
         Delega la lógica a retrieve() o update() estándar.
         """
-        # Obtenemos el perfil del usuario logueado
-        # Usamos get_queryset para mantener las optimizaciones (prefetch_related)
-        # 1. Obtener el objeto del usuario actual
-        try:
-            profile = self.get_queryset().get(custom_user=request.user)
-        except Profile.DoesNotExist:
-            raise NotFound(
-                "No se encontró un perfil asociado a este usuario."
-            ) from None
-
-        # 2. Si es GET, actuamos como si fuera un 'retrieve' normal
+        # Delegamos a los mixins existentes. Código limpio.
         if request.method == "GET":
-            serializer = self.get_serializer(profile)
-            return Response(serializer.data)
+            return self.retrieve(request)
+        return self.update(request)
 
-        # 3. Si es PUT/PATCH, actuamos como un 'update' normal
-        elif request.method in ["PUT", "PATCH"]:
-            # Forzamos partial=True si es PATCH
-            partial = request.method == "PATCH"
-            serializer = self.get_serializer(
-                profile, data=request.data, partial=partial
-            )
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
 
-            # Re-serializamos con el Private para devolver la respuesta bonita y actualizada
-            response_serializer = PrivateProfileSerializer(profile)
-            return Response(response_serializer.data)
+class UserPhotoViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, HasProfile]
+    # Estos parsers son OBLIGATORIOS para subir archivos
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get_queryset(self) -> Any:
+        # Solo mis fotos
+        return UserPhoto.objects.filter(profile__custom_user=self.request.user)
+
+    def get_serializer_class(self) -> Any:
+        if self.action == "create":
+            return UserPhotoUploadSerializer
+        return UserPhotoSerializer
+
+    def perform_create(self, serializer):
+        user: Any = self.request.user
+        # Al guardar, inyectamos el perfil del usuario automáticamente
+        # para que no tenga que enviarlo en el form-data
+
+        serializer.save(profile=user.profile)
