@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .views import LogoutView, ProfileViewSet, UserRegistrationView
+from .views import LogoutView, ProfileViewSet, UserPhotoViewSet, UserRegistrationView
 
 # El router crea automáticamente:
 # GET /profiles/ -> Lista
@@ -11,6 +11,7 @@ from .views import LogoutView, ProfileViewSet, UserRegistrationView
 # GET /profiles/me/ -> Nuestra acción personalizada
 router = DefaultRouter()
 router.register(r"profiles", ProfileViewSet, basename="profile")
+router.register(r"photos", UserPhotoViewSet, basename="photo")
 
 urlpatterns = [
     # Auth endpoints

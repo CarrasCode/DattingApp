@@ -120,6 +120,11 @@ class Profile(models.Model):
     def __str__(self) -> str:
         return f"{self.first_name} - {self.custom_user.email}"
 
+    # Estandarización: Creamos un alias 'owner'
+    @property
+    def owner(self):
+        return self.custom_user
+
     @property
     def age(self):
         return calculate_age(self.birth_date)
@@ -237,3 +242,8 @@ class UserPhoto(models.Model):
 
         # Guardamos en el campo. save=False evita bucle infinito de save() del modelo
         self.image.save(self.image.name, new_image, save=False)
+
+    # Estandarización: Creamos un alias 'owner'
+    @property
+    def owner(self):
+        return self.profile.custom_user
