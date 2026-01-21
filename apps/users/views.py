@@ -1,8 +1,9 @@
-from typing import Any
+from typing import Any, cast
 
 from django.contrib.gis.db.models.functions import (
     Distance as DistanceFunc,
 )  # Renombramos para no confundir
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
@@ -12,7 +13,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Profile, UserPhoto
+from .filters import ProfileFilter
+from .models import Profile, ProfileQuerySet, UserPhoto
 from .permissions import HasProfile, IsOwnerOrReadOnly
 from .serializers import (
     PrivateProfileSerializer,
@@ -65,6 +67,9 @@ class ProfileViewSet(
 ):
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProfileFilter
+
     # --- OPTIMIZACIÓN DE BD ---
     def get_queryset(self) -> Any:
         """
@@ -75,27 +80,45 @@ class ProfileViewSet(
         Con select_related y prefetch_related, Django hace JOINS inteligentes
         y lo reduce a solo 2 queries.
         """
+        # 1. PREPARACIÓN DE LA QUERY
+        # - optimizaciones: Carga tablas relacionadas para no hacer 100 queries.
+        qs = Profile.objects.select_related("custom_user").prefetch_related("photos")
 
-        qs = (
-            Profile.objects.select_related("custom_user")
-            .prefetch_related("photos")
-            .all()
-        )
-        # 2. Obtenemos la ubicación del usuario que hace la petición
-        # OJO: Puede ser que el usuario nuevo aún no tenga ubicación (sea None)
+        # Obtenemos el perfil del usuario logueado (nuestras "Settings")
         user: Any = self.request.user
         user_profile = user.profile
+
+        # 2. LÓGICA GEOESPACIAL (Distancia)
         if user_profile.location:
-            # 3. Anotación Geoespacial
-            # Calculamos la distancia desde 'location' (campo del perfil ajeno)
-            # hasta 'user_profile.location' (mi ubicación).
-            # El resultado se guarda en un atributo virtual llamado 'distance_obj'
+            # Calculamos la distancia de todos hacia mí
             qs = qs.annotate(
                 distance_obj=DistanceFunc("location", user_profile.location)
             )
-
-            # (Opcional) Ordenar por cercanía
+            # Ordenamos del más cercano al más lejano
             qs = qs.order_by("distance_obj")
+
+        # 3. FILTRADO ESTRICTO (Solo en el listado / Feed)
+        if self.action == "list":
+            # --- A. Excluirme a mí mismo (Siempre) ---
+            qs = qs.exclude(custom_user=self.request.user)
+
+            # --- B. Filtro de GÉNERO (Settings) ---
+            # Si mi preferencia no es 'A' (All), filtro estrictamente.
+            if user_profile.gender_preference and user_profile.gender_preference != "A":
+                qs = qs.filter(gender=user_profile.gender_preference)
+
+            # --- C. Filtro de EDAD (Settings) ---
+            # Usamos el método 'in_age_range' del QuerySet personalizado
+            qs = cast(ProfileQuerySet, qs).in_age_range(
+                user_profile.min_age, user_profile.max_age
+            )
+
+            # --- D. Filtro de DISTANCIA (Settings) ---
+            # Si tengo ubicación y tengo un radio máximo configurado
+            if user_profile.location and user_profile.max_distance:
+                # Convertimos KM (setting) a Metros (PostGIS)
+                max_meters = user_profile.max_distance * 1000
+                qs = qs.filter(distance_obj__lte=max_meters)
 
         return qs
 
@@ -143,7 +166,8 @@ class ProfileViewSet(
         # Delegamos a los mixins existentes. Código limpio.
         if request.method == "GET":
             return self.retrieve(request)
-        return self.update(request)
+
+        return self.update(request, partial=request.method == "PATCH")
 
 
 class UserPhotoViewSet(viewsets.ModelViewSet):
