@@ -42,7 +42,7 @@ class Match(models.Model):
         if self.user_a == self.user_b:
             raise ValidationError(_("No puedes hacer match contigo mismo."))
 
-        # REGLA DE ORO DE INTEGRIDAD: Ordenar IDs
+        # Ordenar IDs
         # Si vienen desordenados, les damos la vuelta antes de guardar.
         # Esto asegura que siempre se guarde (ID_Menor, ID_Mayor).
         # Solo puede existir una única fila para representar la relación entre ellos dos,
