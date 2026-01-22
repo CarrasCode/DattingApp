@@ -1,10 +1,11 @@
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from serializers import MatchSerializer, SwipeSerializer
-from services.match_service import create_swipe_and_check_match
 
 from apps.users.permissions import HasProfile
+
+from ..serializers import MatchSerializer, SwipeSerializer
+from ..services.match_service import create_swipe_and_check_match
 
 
 class SwipeViewSet(viewsets.GenericViewSet):

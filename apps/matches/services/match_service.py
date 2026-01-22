@@ -1,7 +1,9 @@
 from django.db import transaction
-from models import Match, Swipe
 
-from apps.users.models import Profile
+from ..models import Match, Swipe
+
+if False:  # TYPE_CHECKING
+    from apps.users.models import Profile
 
 
 def create_swipe_and_check_match(swiper: Profile, target: Profile, value: str):

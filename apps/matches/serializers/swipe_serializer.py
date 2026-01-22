@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from apps.matches.models.swipe import Swipe
+from ..models import Swipe
 
 
 class CurrentProfileDefault:

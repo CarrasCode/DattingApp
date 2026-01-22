@@ -1,7 +1,8 @@
-from models import Match
 from rest_framework import serializers
 
 from apps.users.serializers import PublicProfileSerializer
+
+from ..models import Match
 
 
 class MatchSerializer(serializers.ModelSerializer):

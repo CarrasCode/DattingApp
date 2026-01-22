@@ -1,11 +1,10 @@
-from typing import Any
+from typing import Any, override
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
-from services import annotate_distance_from_user, apply_matching_filters
 
 from ..filters import ProfileFilter
 from ..models import Profile
@@ -15,6 +14,7 @@ from ..serializers import (
     ProfileWriteSerializer,
     PublicProfileSerializer,
 )
+from ..services import annotate_distance_from_user, apply_matching_filters
 
 
 # --- VIEWSET DE PERFILES (ModelViewSet) ---
@@ -32,7 +32,8 @@ class ProfileViewSet(
     filterset_class = ProfileFilter
 
     # --- OPTIMIZACIÓN DE BD ---
-    def get_queryset(self) -> Any:
+    @override
+    def get_queryset(self):  # type: ignore[override]
         """
         Aquí resolvemos el problema N+1.
         Si tienes 20 perfiles y cada uno tiene fotos y usuario,
@@ -62,7 +63,9 @@ class ProfileViewSet(
         return qs
 
     # --- SERIALIZADOR DINÁMICO ---
-    def get_serializer_class(self) -> Any:
+
+    @override
+    def get_serializer_class(self):  # type: ignore[override]
         # 1. Escritura (Crear/Editar) -> Serializador de validación inputs
         if self.action in ["create", "update", "partial_update"]:
             return ProfileWriteSerializer
@@ -74,18 +77,32 @@ class ProfileViewSet(
         # 3. Lectura general (Listar/Ver otros) -> Serializador público seguro
         return PublicProfileSerializer
 
-    def get_object(self):
+    @override
+    def get_object(self) -> Profile:  # type: ignore[override]
         """
-        - Si la acción es 'me', devuelve el perfil del usuario logueado.
-        - Si es otra acción (ej: /profiles/5/), usa la lógica normal (por ID).
+        Sobrescribe get_object para manejar la acción 'me' de forma optimizada.
+
+        - Para 'me': Query directa sin cálculos geoespaciales innecesarios
+        - Para otras acciones: Usa el queryset estándar con todas las optimizaciones
+
+        Returns:
+            Profile: El perfil solicitado (propio o de otro usuario)
+
+        Raises:
+            NotFound: Si el usuario no tiene perfil creado (solo en acción 'me')
         """
         if self.action == "me":
-            queryset = self.get_queryset()
             user = self.request.user
 
             try:
-                obj = queryset.get(custom_user=user)
-                # IMPORTANTE: Check de permisos de objeto manual porque no pasamos por get_object normal
+                # Query optimizada: solo carga lo necesario
+                obj = (
+                    Profile.objects.select_related("custom_user")
+                    .prefetch_related("photos")
+                    .get(custom_user=user)
+                )
+                # Validación manual de permisos a nivel de objeto
+                # Esto ejecuta has_object_permission() de todos los permission_classes
                 self.check_object_permissions(self.request, obj)
                 return obj
             except Profile.DoesNotExist:

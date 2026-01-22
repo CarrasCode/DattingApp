@@ -4,18 +4,16 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.users.models import Profile
-
 
 class Match(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Definimos explícitamente a los dos participantes
     user_a = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="matches_a"
+        "users.Profile", on_delete=models.CASCADE, related_name="matches_a"
     )
     user_b = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="matches_b"
+        "users.Profile", on_delete=models.CASCADE, related_name="matches_b"
     )
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)

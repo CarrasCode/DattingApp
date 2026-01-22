@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from ..models import Profile
 from ..validators import validate_adult_age
-from .entities import UserPhotoSerializer
+from .entities_serializer import UserPhotoSerializer
 
 
 class BaseProfileSerializer(serializers.ModelSerializer):

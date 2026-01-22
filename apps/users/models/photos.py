@@ -6,8 +6,6 @@ from django.core.files.base import ContentFile
 from django.db import models, transaction
 from PIL import Image
 
-from .profiles import Profile
-
 IMAGE_SETTINGS = {
     "format": "JPEG",
     "extension": ".jpg",
@@ -28,7 +26,10 @@ def get_file_path(instance, filename: str) -> str:
 class UserPhoto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, verbose_name="photos", related_name="photos"
+        "Profile",
+        on_delete=models.CASCADE,
+        verbose_name="photos",
+        related_name="photos",
     )
     image = models.ImageField(upload_to=get_file_path)
     caption = models.CharField(max_length=100, blank=True)

@@ -7,7 +7,6 @@ from django.db.models.functions import ExtractYear
 from django.utils.translation import gettext_lazy as _
 
 from ..utils import calculate_age
-from .users import CustomUser
 
 
 class ProfileQuerySet(models.QuerySet):
@@ -81,7 +80,7 @@ class Profile(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     custom_user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name="profile"
+        "CustomUser", on_delete=models.CASCADE, related_name="profile"
     )
     first_name = models.CharField(max_length=50)
     bio = models.TextField(max_length=1000, blank=True)
