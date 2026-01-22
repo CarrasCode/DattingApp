@@ -1,4 +1,4 @@
-from .match import MatchSerializer
-from .swipe import SwipeSerializer
+from .match_serializer import MatchSerializer
+from .swipe_serializer import SwipeSerializer
 
 __all__ = ["MatchSerializer", "SwipeSerializer"]

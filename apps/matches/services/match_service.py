@@ -37,6 +37,6 @@ def create_swipe_and_check_match(swiper: Profile, target: Profile, value: str):
                 # Aunque se revise esto en el model, es convenient tambien revisarlo aqui
                 user_a, user_b = sorted([swiper, target], key=lambda x: x.id)
                 # En caso de que dos usuarios hagan match a la vez.
-                match = Match.objects.get_or_create(user_a=user_a, user_b=user_b)
+                match, _ = Match.objects.get_or_create(user_a=user_a, user_b=user_b)
 
         return swipe, match

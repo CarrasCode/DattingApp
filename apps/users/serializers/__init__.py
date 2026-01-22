@@ -1,6 +1,6 @@
-from .auth import UserRegistrationSerializer
-from .entities import UserPhotoSerializer, UserPhotoUploadSerializer
-from .profiles import (
+from .auth_serializer import UserRegistrationSerializer
+from .entities_serializer import UserPhotoSerializer, UserPhotoUploadSerializer
+from .profiles_serializer import (
     PrivateProfileSerializer,
     ProfileWriteSerializer,
     PublicProfileSerializer,
