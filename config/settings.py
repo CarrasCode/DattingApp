@@ -11,14 +11,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
-import sys
 from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-sys.path.append(str(BASE_DIR / "apps"))
+# sys.path.append(str(BASE_DIR / "apps"))
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -50,9 +49,9 @@ INSTALLED_APPS = [
     "django_filters",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
-    "users",
-    "matches",
-    "chat",
+    "apps.users",
+    "apps.matches",
+    "apps.chat",
     # django_cleanup tiene que ir ultima
     "django_cleanup.apps.CleanupConfig",
 ]

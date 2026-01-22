@@ -1,8 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import transaction
 
 from ..models import Match, Swipe
 
-if False:  # TYPE_CHECKING
+if TYPE_CHECKING:
     from apps.users.models import Profile
 
 

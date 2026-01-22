@@ -23,7 +23,7 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     # Usamos 'api/' como prefijo estándar para backend
-    path("api/users/", include("users.urls")),
+    path("api/users/", include("apps.users.urls")),
 ]
 
 # Esto permite que cuando entres a http://localhost:8000/media/foto.jpg, Django      la muestre.

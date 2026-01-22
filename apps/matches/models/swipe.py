@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.users.models import Profile
+
 
 class Swipe(models.Model):
     class SwipeType(models.TextChoices):
@@ -14,11 +16,11 @@ class Swipe(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # Quién da el like
     swiper = models.ForeignKey(
-        "users.Profile", on_delete=models.CASCADE, related_name="swipes_made"
+        Profile, on_delete=models.CASCADE, related_name="swipes_made"
     )
     # A quién recibe el like
     target = models.ForeignKey(
-        "users.Profile", on_delete=models.CASCADE, related_name="swipes_received"
+        Profile, on_delete=models.CASCADE, related_name="swipes_received"
     )
 
     value = models.CharField(max_length=10, choices=SwipeType.choices)
