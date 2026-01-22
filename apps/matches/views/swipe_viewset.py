@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from serializers import MatchSerializer, SwipeSerializer
 from services.match_service import create_swipe_and_check_match
 
+from apps.users.permissions import HasProfile
+
 
 class SwipeViewSet(viewsets.GenericViewSet):
     """
@@ -12,7 +14,7 @@ class SwipeViewSet(viewsets.GenericViewSet):
     """
 
     serializer_class = SwipeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasProfile]
 
     def create(self, request, *args, **kwargs):
         # 1. Validar datos de entrada (Input)

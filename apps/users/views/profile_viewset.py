@@ -1,16 +1,14 @@
-from typing import Any, cast
+from typing import Any
 
-from django.contrib.gis.db.models.functions import (
-    Distance as DistanceFunc,
-)  # Renombramos para no confundir
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
+from services import annotate_distance_from_user, apply_matching_filters
 
 from ..filters import ProfileFilter
-from ..models import Profile, ProfileQuerySet
+from ..models import Profile
 from ..permissions import IsOwnerOrReadOnly
 from ..serializers import (
     PrivateProfileSerializer,
@@ -52,37 +50,15 @@ class ProfileViewSet(
         user_profile = user.profile
 
         # 2. LÓGICA GEOESPACIAL (Distancia)
-        if user_profile.location:
-            # Calculamos la distancia de todos hacia mí
-            qs = qs.annotate(
-                distance_obj=DistanceFunc("location", user_profile.location)
-            )
-            # Ordenamos del más cercano al más lejano
-            qs = qs.order_by("distance_obj")
+        qs = annotate_distance_from_user(qs, user_profile)
 
         # 3. FILTRADO ESTRICTO (Solo en el listado / Feed)
         if self.action == "list":
-            # --- A. Excluirme a mí mismo (Siempre) ---
-            qs = qs.exclude(custom_user=self.request.user)
-
-            # --- B. Filtro de GÉNERO (Settings) ---
-            # Si mi preferencia no es 'A' (All), filtro estrictamente.
-            if user_profile.gender_preference and user_profile.gender_preference != "A":
-                qs = qs.filter(gender=user_profile.gender_preference)
-
-            # --- C. Filtro de EDAD (Settings) ---
-            # Usamos el método 'in_age_range' del QuerySet personalizado
-            qs = cast(ProfileQuerySet, qs).in_age_range(
-                user_profile.min_age, user_profile.max_age
+            qs = apply_matching_filters(
+                queryset=qs,
+                user_profile=user_profile,
+                exclude_user_id=user.id,
             )
-
-            # --- D. Filtro de DISTANCIA (Settings) ---
-            # Si tengo ubicación y tengo un radio máximo configurado
-            if user_profile.location and user_profile.max_distance:
-                # Convertimos KM (setting) a Metros (PostGIS)
-                max_meters = user_profile.max_distance * 1000
-                qs = qs.filter(distance_obj__lte=max_meters)
-
         return qs
 
     # --- SERIALIZADOR DINÁMICO ---
