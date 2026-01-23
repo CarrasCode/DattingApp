@@ -7,37 +7,24 @@ from ..models import Match
 
 class MatchSerializer(serializers.ModelSerializer):
     other_user = serializers.SerializerMethodField()
+    # Mapeamos el valor anotado en la View.
+    # Usamos un valor por defecto por si el usuario no tiene ubicación.
+    distance = serializers.SerializerMethodField()
 
     class Meta:
         model = Match
-        fields = ["id", "created_at", "other_user"]
-        read_only_fields = ["id", "created_at", "other_user"]
+        fields = ["id", "created_at", "other_user", "distance"]
 
-    def get_other_user(self, obj: Match):
-        """
-        Determina dinámicamente quién es la 'otra' persona en el match.
-        """
+    def get_other_user(self, obj):
         request = self.context.get("request")
-
-        # Si no hay request o usuario, retornamos None
-        if not request or not hasattr(request, "user"):
+        if not request:
             return None
 
-        my_profile_id = request.user.profile.id
-        target_profile = None
+        current_profile = request.user.profile
+        target = obj.user_b if obj.user_a == current_profile else obj.user_a
+        return PublicProfileSerializer(target).data
 
-        # Usar getattr para que el linter no se queje de atributos dinámicos
-        user_a_id = getattr(obj, "user_a_id", None)
-        user_b_id = getattr(obj, "user_b_id", None)
-
-        if user_a_id == my_profile_id:
-            target_profile = obj.user_b
-        elif user_b_id == my_profile_id:
-            target_profile = obj.user_a
-
-        if target_profile:
-            # Pasamos el contexto al serializador anidado.
-            # Crucial para que ImageFields generen URLs absolutas correctamente.
-            return PublicProfileSerializer(target_profile, context=self.context).data
-
+    def get_distance(self, obj):
+        if hasattr(obj, "distance_val") and obj.distance_val:
+            return f"{obj.distance_val.km:.2f} km"  # O obj.distance_val.m
         return None

@@ -1,12 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..models import Profile
+from apps.users.models.users import CustomUser
 
-# El CustomUser de models
-User = get_user_model()
+from ..models import Profile
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -15,7 +13,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     access = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ["email", "password", "password_confirm", "refresh", "access"]
         extra_kwargs = {"password": {"write_only": True}}
 
@@ -45,7 +43,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # IMPORTANTE: Al crear usuario, creamos su perfil vacío automáticamente
         # Esto es una buena práctica para evitar errores de "Profile not found" luego
         with transaction.atomic():
-            user = User.objects.create_user(**validated_data)
+            user = CustomUser.objects.create_user(**validated_data)
             Profile.objects.create(
                 custom_user=user, first_name="", birth_date="2000-01-01"
             )
