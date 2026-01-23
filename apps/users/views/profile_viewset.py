@@ -58,7 +58,6 @@ class ProfileViewSet(
             qs = apply_matching_filters(
                 queryset=qs,
                 user_profile=user_profile,
-                exclude_user_id=user.id,
             )
         return qs
 

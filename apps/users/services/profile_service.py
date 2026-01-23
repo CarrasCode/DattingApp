@@ -9,7 +9,6 @@ from ..models import Profile, ProfileQuerySet
 def apply_matching_filters(
     queryset: QuerySet[Profile],
     user_profile: Profile,
-    exclude_user_id: int | None = None,
 ) -> QuerySet[Profile]:
     """
     Aplica los filtros de matching según las preferencias del usuario.
@@ -22,20 +21,33 @@ def apply_matching_filters(
     Returns:
         QuerySet filtrado según preferencias
     """
-    # 1. Excluir al usuario actual
-    if exclude_user_id:
-        queryset = queryset.exclude(custom_user_id=exclude_user_id)
+    # 1. Recolectar IDs para excluir (Bloqueados + Usuario actual)
 
-    # 2. Filtro de género
+    # Usamos "blocks_given" (coincide con related_name en Block).
+    # Añadimos # type: ignore para que Pylance no se queje de atributos dinámicos.
+    # Obtenemos "blocked_id" (el ID del perfil bloqueado)
+    excluded_profile_ids = list(
+        user_profile.blocks_given.values_list("blocked_id", flat=True)
+    )  # type: ignore
+
+    # Añadimos el perfil del usuario actual a la lista de exclusión.
+    # Es más eficiente filtrar por ID (Primary Key) que por foreign key (custom_user_id).
+    excluded_profile_ids.append(user_profile.id)
+
+    # 2. Excluir usuarios bloqueados y a sí mismo
+    if excluded_profile_ids:
+        queryset = queryset.exclude(id__in=excluded_profile_ids)
+
+    # 3. Filtro de género
     if user_profile.gender_preference and user_profile.gender_preference != "A":
         queryset = queryset.filter(gender=user_profile.gender_preference)
 
-    # 3. Filtro de edad
+    # 4. Filtro de edad
     queryset = cast(ProfileQuerySet, queryset).in_age_range(
         user_profile.min_age, user_profile.max_age
     )
 
-    # 4. Filtro de distancia
+    # 5. Filtro de distancia
     if user_profile.location and user_profile.max_distance:
         max_meters = user_profile.max_distance * 1000
         queryset = queryset.filter(distance_obj__lte=max_meters)
