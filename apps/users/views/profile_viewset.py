@@ -72,6 +72,9 @@ class ProfileViewSet(
 
         # 2. Acción especial 'me' -> Serializador privado completo
         if self.action == "me":
+            # Si es PUT o PATCH, usamos el de escritura para filtrar campos
+            if self.request.method in ["PUT", "PATCH"]:
+                return ProfileWriteSerializer
             return PrivateProfileSerializer
 
         # 3. Lectura general (Listar/Ver otros) -> Serializador público seguro

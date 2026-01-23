@@ -103,5 +103,6 @@ class ProfileWriteSerializer(serializers.ModelSerializer):
             "gender",
             "gender_preference",
             "max_distance",
-            # Nota: Location se suele actualizar en un endpoint aparte
+            "min_age",
+            "max_age",
         ]
