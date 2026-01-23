@@ -1,5 +1,10 @@
 from .block_serializer import BlockSerializer
 from .match_serializer import MatchSerializer
-from .swipe_serializer import SwipeSerializer
+from .swipe_serializer import CurrentProfileDefault, SwipeSerializer
 
-__all__ = ["MatchSerializer", "SwipeSerializer", "BlockSerializer"]
+__all__ = [
+    "MatchSerializer",
+    "SwipeSerializer",
+    "BlockSerializer",
+    "CurrentProfileDefault",
+]
