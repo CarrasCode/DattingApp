@@ -15,6 +15,12 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:7-alpine
+    container_name: dating_redis
+    ports:
+      - "6379:6379"
+    restart: always
   # --- SERVICIO WEB (TU DJANGO) ---
   web:
     build:
@@ -32,7 +38,9 @@ services:
     # Django necesita saber que la DB existe antes de arrancar
     depends_on:
       - db
+      - redis
     environment:
+      - REDIS_HOST=redis
       - DEBUG=1
 
 volumes:

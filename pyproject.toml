@@ -13,7 +13,9 @@ dependencies = [
     "Pillow",
     "djangorestframework-simplejwt>=5.5.1",
     "django-cleanup>=9.0.0",
-
+    "channels>=4.3.2",
+    "daphne>=4.2.1",
+    "channels-redis>=4.3.0",
 ]
 
 [dependency-groups]
