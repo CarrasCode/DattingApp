@@ -26,17 +26,17 @@ def apply_matching_filters(
     # Usamos "blocks_given" (coincide con related_name en Block).
     # Añadimos # type: ignore para que Pylance no se queje de atributos dinámicos.
     # Obtenemos "blocked_id" (el ID del perfil bloqueado)
-    excluded_profile_ids = list(
-        user_profile.blocks_given.values_list("blocked_id", flat=True)
-    )  # type: ignore
+    excluded_ids = list(
+        user_profile.blocks_given.values_list("blocked_id", flat=True)  # type: ignore
+    )
 
     # Añadimos el perfil del usuario actual a la lista de exclusión.
     # Es más eficiente filtrar por ID (Primary Key) que por foreign key (custom_user_id).
-    excluded_profile_ids.append(user_profile.id)
+    excluded_ids.append(user_profile.id)
 
     # 2. Excluir usuarios bloqueados y a sí mismo
-    if excluded_profile_ids:
-        queryset = queryset.exclude(id__in=excluded_profile_ids)
+    if excluded_ids:
+        queryset = queryset.exclude(id__in=excluded_ids)
 
     # 3. Filtro de género
     if user_profile.gender_preference and user_profile.gender_preference != "A":
