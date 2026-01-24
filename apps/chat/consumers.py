@@ -63,7 +63,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, match_id, user_id, text):
         from apps.chat.models import Message
-        from apps.social.models import Match
+        from apps.matches.models import Match
 
         match = Match.objects.get(id=match_id)
         # OJO: Asumimos que user.profile existe.
