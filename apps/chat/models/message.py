@@ -20,6 +20,8 @@ class Message(models.Model):
 
     is_read = models.BooleanField(default=False)
 
+    objects = models.Manager()
+
     class Meta:
         ordering = ["-created_at"]
         indexes = [

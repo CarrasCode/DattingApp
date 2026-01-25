@@ -25,6 +25,7 @@ urlpatterns = [
     # Usamos 'api/' como prefijo estándar para backend
     path("api/users/", include("apps.users.urls")),
     path("api/social/", include("apps.matches.urls")),
+    path("api/chat/", include("apps.chat.urls")),
 ]
 
 # Esto permite que cuando entres a http://localhost:8000/media/foto.jpg, Django      la muestre.

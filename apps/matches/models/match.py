@@ -21,6 +21,8 @@ class Match(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     is_active = models.BooleanField(default=True)
 
+    objects = models.Manager()
+
     class Meta:
         # Garantiza que solo exista UN match entre estas dos personas
         constraints = [
