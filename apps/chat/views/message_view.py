@@ -29,8 +29,13 @@ class MessageViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         except ObjectDoesNotExist:
             raise exceptions.NotFound("Match no encontrado") from None
 
-        if self.request.user.profile not in match.user_a or match.user_b:
+        user_profile = self.request.user.profile
+        if user_profile != match.user_a and user_profile != match.user_b:
             raise exceptions.PermissionDenied("No tienes permiso para ver este chat.")
 
         # 2. Devolver mensajes ordenados (los más recientes primero para paginación inversa)
-        return Message.objects.filter(match=match).order_by("-created_at")
+        return (
+            Message.objects.filter(match=match)
+            .select_related("sender")  # Util para evitar la N+1 query con el serializer
+            .order_by("-created_at")
+        )
