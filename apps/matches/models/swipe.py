@@ -27,6 +27,8 @@ class Swipe(models.Model):
     # IMPORTANTE: db_index=True para que las consultas de "votos de hoy" sean rápidas
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
+    objects = models.Manager()
+
     class Meta:
         # La UniqueConstraint ya crea un índice interno en la BD
         # que sirve para búsquedas rápidas de la pareja (swiper, target).
