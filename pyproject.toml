@@ -22,6 +22,7 @@ dependencies = [
 dev = [
     "pre-commit>=4.5.1",
     "ruff>=0.14.12",
+    "ty>=0.0.13",
 ]
 
 # pyproject.toml
