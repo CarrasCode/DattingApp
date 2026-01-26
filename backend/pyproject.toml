@@ -24,6 +24,7 @@ dev = [
     "pre-commit>=4.5.1",
     "ruff>=0.14.12",
     "ty>=0.0.13",
+    "django-stubs>=5.1.1",
 ]
 
 # pyproject.toml
@@ -71,3 +72,20 @@ section-order = ["future", "standard-library", "third-party", "first-party", "lo
 quote-style = "double"
 # Indentación con espacios
 indent-style = "space"
+
+
+[tool.ty]
+# 1. Definir la versión de Python objetivo (coincidiendo con tu proyecto)
+[tool.ty.environment]
+python-version = "3.14"
+# 2. Definir qué analizar y qué ignorar
+[tool.ty.src]
+# Incluye tus carpetas de código fuente
+include = ["apps", "config", "manage.py"]
+# Excluye las migraciones de Django (suelen dar falsos positivos y son autogeneradas)
+exclude = ["**/migrations/**"]
+# 3. Reglas específicas (Opcional)
+# Puedes ajustar la severidad de las reglas según las necesites
+[tool.ty.rules]
+# Ejemplo: si quieres que las variables no usadas sean solo warning o error
+unused-variable = "warn"

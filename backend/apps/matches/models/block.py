@@ -14,6 +14,7 @@ class Block(models.Model):
         Profile, on_delete=models.CASCADE, related_name="blocks_received"
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
 
     class Meta:
         constraints = [

@@ -65,7 +65,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not message_text:
             return
 
-        user_id = self.scope.get("user").id  # type: ignore
+        user_id = self.scope.get("user").id
         # ID del usuario logueado (gracias al AuthMiddleware)
 
         # 1. Guardar mensaje en Base de Datos (Función auxiliar)

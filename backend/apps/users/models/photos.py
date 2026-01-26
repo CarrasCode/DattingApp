@@ -1,5 +1,6 @@
 import os
 import uuid
+from dataclasses import dataclass
 from io import BytesIO
 
 from django.core.files.base import ContentFile
@@ -8,12 +9,16 @@ from PIL import Image
 
 from .profiles import Profile
 
-IMAGE_SETTINGS = {
-    "format": "JPEG",
-    "extension": ".jpg",
-    "quality": 85,
-    "max_dimension": 1080,
-}
+
+@dataclass(frozen=True)
+class ImageConfig:
+    format: str = "JPEG"
+    extension: str = ".jpg"
+    quality: int = 85
+    max_dimension: int = 1080
+
+
+IMAGE_SETTINGS = ImageConfig()
 
 
 def get_file_path(instance, filename: str) -> str:
@@ -21,7 +26,7 @@ def get_file_path(instance, filename: str) -> str:
     Generar nombres únicos: "user_id/photos/uuid-generado.jpg"
     Cambiando el nombre de la extension siempre a jpg
     """
-    filename = f"{uuid.uuid4()}{IMAGE_SETTINGS['extension']}"
+    filename = f"{uuid.uuid4()}{IMAGE_SETTINGS.extension}"
     return os.path.join(f"user_{instance.profile.id}", "photos", filename)
 
 
@@ -39,6 +44,8 @@ class UserPhoto(models.Model):
     # Importante: Saber cuál es la foto de perfil principal
     is_main = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
+
+    objects = models.Manager()
 
     class Meta:
         ordering = ["-is_main", "-created"]  # La principal primero, luego las nuevas
@@ -68,6 +75,9 @@ class UserPhoto(models.Model):
         Normaliza la imagen: Corrige rotación, convierte a RGB,
         redimensiona y comprime a JPEG.
         """
+        if not self.image:
+            return
+
         img = Image.open(self.image)
 
         # Corregir orientación EXIF (común en fotos de móvil)
@@ -95,12 +105,12 @@ class UserPhoto(models.Model):
 
         # 3. Redimensionar (solo si es muy grande)
         if (
-            img.height > IMAGE_SETTINGS["max_dimension"]
-            or img.width > IMAGE_SETTINGS["max_dimension"]
+            img.height > IMAGE_SETTINGS.max_dimension
+            or img.width > IMAGE_SETTINGS.max_dimension
         ):
             output_size = (
-                IMAGE_SETTINGS["max_dimension"],
-                IMAGE_SETTINGS["max_dimension"],
+                IMAGE_SETTINGS.max_dimension,
+                IMAGE_SETTINGS.max_dimension,
             )
             img.thumbnail(output_size, Image.Resampling.LANCZOS)
 
@@ -113,8 +123,8 @@ class UserPhoto(models.Model):
         # Pillow escribe los 0s y 1s del formato JPEG dentro de esa variable en RAM.
         img.save(
             output_io,
-            format=IMAGE_SETTINGS["format"],
-            quality=IMAGE_SETTINGS["quality"],
+            format=IMAGE_SETTINGS.format,
+            quality=IMAGE_SETTINGS.quality,
             optimize=True,
         )
         # .getvalue() extrae todo el contenido crudo (los bytes reales) de ese archivo virtual.
