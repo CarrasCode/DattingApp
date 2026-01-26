@@ -24,7 +24,8 @@ services:
   # --- SERVICIO WEB (TU DJANGO) ---
   web:
     build:
-      .
+      context: ./backend
+      dockerfile: Dockerfile
       # Ejecutar como tu usuario local (asume UID 1000 si no se especifica)
     user: "${UID:-1000}:${GID:-1000}"
     # Sobreescribe el comando para usar el server de desarrollo
@@ -32,7 +33,7 @@ services:
     # Mapeamos los archivos de tu PC al contenedor.
     # Así, si cambias código, se actualiza sin reiniciar (Hot Reloading).
     volumes:
-      - .:/app
+      - ./backend:/app
     ports:
       - "8000:8000"
     # Django necesita saber que la DB existe antes de arrancar
