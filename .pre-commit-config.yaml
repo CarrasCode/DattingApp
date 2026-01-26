@@ -5,16 +5,19 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace # Elimina espacios al final de las líneas
-        exclude: ^backend/apps/.*/migrations/
+        exclude: ^backend/apps/.*/migrations/|^frontend/src/assets/|^frontend/dist/|^frontend/public/
       - id: end-of-file-fixer # Asegura que el archivo termine con una línea vacía
-        exclude: ^backend/apps/.*/migrations/
+        exclude: ^backend/apps/.*/migrations/|^frontend/src/assets/|^frontend/dist/|^frontend/public/
       - id: check-yaml # Valida sintaxis de archivos YAML
+        # Angular usa 'angular.json' que es JSON, pero si tienes YAMLs en assets, exclúyelos
+        exclude: ^frontend/dist/
       - id: check-added-large-files # Evita subir archivos gigantes por error
+        args: ['--maxkb=1000'] # Alerta si subes algo de más de 1MB
 
   # 2. Ruff (Linter y Formatter)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Usamos una versión reciente compatible con tu config
-    rev: v0.14.11
+    rev: v0.14.14
     hooks:
       # Linter: Busca errores y ordena imports
       - id: ruff

@@ -1,46 +1,85 @@
-# --- Python & General ---
+# ===========================
+# PYTHON & DJANGO (Backend)
+# ===========================
 __pycache__/
 *.py[cod]
 *$py.class
-
-# --- UV & Entornos Virtuales ---
-# La carpeta del entorno virtual creada por uv
-.venv/
-# NOTA: uv.lock SÍ se debe subir al repo (igual que package-lock.json)
-
-# --- Django ---
 *.log
+
+# Entornos Virtuales (UV)
+.venv/
+# Nota: uv.lock se sube, igual que pnpm-lock.yaml
+
+# Django Base
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Carpetas de archivos estáticos y subidos por usuarios (Dating App)
-# 'media' contendrá las fotos de los usuarios -> NO subir al repo
+# Django Media & Static
 media/
-# 'staticfiles' es donde se recolectan los estilos para producción -> generado
 staticfiles/
 
-# --- Variables de Entorno & Secretos ---
-.env
-.env.local
-.env.*
-! .env.example
-
-# --- Herramientas de Calidad (Ruff, Pytest, MyPy) ---
+# Calidad de Código (Ruff, Pytest, MyPy)
 .ruff_cache/
 .pytest_cache/
 .mypy_cache/
 htmlcov/
 .coverage
 
-# --- IDEs (VS Code / PyCharm) ---
-.vscode/
-.idea/
-*.swp
-*.swo
+# ===========================
+# NODE & ANGULAR (Frontend)
+# ===========================
+# Dependencias (Aplica a raíz y subcarpetas)
+node_modules/
 
-# --- Windows (Sistema Operativo) ---
+# Logs de npm/yarn/pnpm
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Angular - Build y Cache (Generalizado)
+dist/
+tmp/
+out-tsc/
+bazel-out/
+.angular/
+.sass-cache/
+connect.lock
+coverage/
+
+# Testing y Screenshots
+testem.log
+__screenshots__/
+
+# ===========================
+# SISTEMA & IDEs
+# ===========================
+# Variables de entorno (CRÍTICO: No subir nunca)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Mac & Windows
+.DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# IDEs
+.idea/
+*.swp
+*.swo
+# NOTA: No ignoramos .vscode/ porque queremos compartir launch.json y extensions.json
+# Si tienes ajustes personales en vscode que no quieres subir, ignóralos explícitamente así:
+# .vscode/settings.json (Descomenta esto solo si tus settings tienen rutas absolutas de tu PC)
+
+# ===========================
+# AI & OTROS
+# ===========================
+.agent/
+.gemini
+AI_BEST_PRACTICES.md
+# ^ Opcional: Si quieres que cada dev tenga sus propias reglas de IA, ignóralo.
+# Si quieres que todo el equipo use las mismas reglas (recomendado), ponle un # delante para no ignorarlo.
