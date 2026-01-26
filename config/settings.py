@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.matches",
     "apps.chat",
+    "drf_spectacular",
     # django_cleanup tiene que ir ultima
     "django_cleanup.apps.CleanupConfig",
 ]
@@ -157,6 +158,8 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    # Generador de documentación
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 
@@ -179,4 +182,15 @@ CHANNEL_LAYERS = {
             "hosts": [(os.environ.get("REDIS_HOST", "redis"), 6379)],
         },
     },
+}
+
+# Configuración específica de la documentación
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Dating App API",
+    "DESCRIPTION": "Documentación oficial del backend de citas (Swipes, Chat, Geo).",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # Configuración para que el botón "Authorize" funcione con JWT
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SECURITY": [{"Bearer": []}],
 }

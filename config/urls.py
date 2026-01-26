@@ -19,6 +19,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -26,7 +31,19 @@ urlpatterns = [
     path("api/users/", include("apps.users.urls")),
     path("api/social/", include("apps.matches.urls")),
     path("api/chat/", include("apps.chat.urls")),
+    # Documentación
+    # 1. El archivo Schema
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # 2. Swagger UI
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    # 3. Redoc
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
+
 
 # Esto permite que cuando entres a http://localhost:8000/media/foto.jpg, Django      la muestre.
 # En producción, esto lo hará Nginx o S3, no Django.
