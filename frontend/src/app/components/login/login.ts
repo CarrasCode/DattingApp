@@ -20,10 +20,7 @@ export class Login {
       console.log(this.loginForm.value);
 
       this.authService
-        .login({
-          email: this.loginForm.value.email!,
-          password: this.loginForm.value.password!,
-        })
+        .login({ email: this.loginForm.value.email!, password: this.loginForm.value.password! })
         .subscribe((token) => console.log(token));
     }
   }
