@@ -1,18 +1,24 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { signal, computed } from '@angular/core';
+import { User } from '../models/user';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  users = signal([
-    { name: 'Laura', age: 25 },
-    { name: 'Pablo', age: 28 },
-    { name: 'Lucía', age: 24 },
-  ]);
+  httpClient = inject(HttpClient);
+  users = signal<User[]>([]);
   matchesCount = computed(() => this.users().length);
 
-  removeUser(name: string) {
-    this.users.update((prev) => prev.filter((u) => u.name !== name));
+  removeUser(id: number) {
+    this.users.update((prev) => prev.filter((u) => u.id !== id));
+  }
+
+  getUsers() {
+    return this.httpClient
+      .get<User[]>(environment.apiUrl + 'users/profiles/')
+      .subscribe((usuarios) => this.users.set(usuarios));
   }
 }
