@@ -1,0 +1,9 @@
+@defer (on viewport) {
+  @for (user of users(); track $index) {
+    <app-user-card [user]="user" (remove)="removeUser(user.name)"></app-user-card>
+  }
+} @placeholder {
+  <p>Cargando modulo de citas...</p>
+} @loading {
+  <p>Bajando Datos...</p>
+}
