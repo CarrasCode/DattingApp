@@ -17,6 +17,7 @@ dependencies = [
     "daphne>=4.2.1",
     "channels-redis>=4.3.0",
     "drf-spectacular>=0.29.0",
+    "django-cors-headers>=4.9.0",
 ]
 
 [dependency-groups]

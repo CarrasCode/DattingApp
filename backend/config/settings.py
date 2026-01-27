@@ -55,12 +55,14 @@ INSTALLED_APPS = [
     "apps.matches",
     "apps.chat",
     "drf_spectacular",
+    "corsheaders",
     # django_cleanup tiene que ir ultima
     "django_cleanup.apps.CleanupConfig",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -183,6 +185,16 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+#  Solo permitimos a nuestro frontend
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+]
+
+# Si usas credenciales (cookies/sesiones) necesitas esto también:
+CORS_ALLOW_CREDENTIALS = True
 
 # Configuración específica de la documentación
 SPECTACULAR_SETTINGS = {
