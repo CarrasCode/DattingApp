@@ -3,11 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
 
-export interface loginCredentials {
+export interface LoginCredentials {
   email: string;
   password: string;
 }
-interface loginResponse {
+interface LoginResponse {
   access: string;
   refresh: string;
 }
@@ -18,13 +18,31 @@ interface loginResponse {
 export class AuthService {
   httpClient = inject(HttpClient);
 
-  login(credentials: loginCredentials) {
+  login(credentials: LoginCredentials) {
     return this.httpClient
-      .post<loginResponse>(
+      .post<LoginResponse>(
         environment.apiUrl + '/users/auth/login/',
 
         credentials,
       )
-      .pipe(tap((response) => localStorage.setItem('access_token', response.access)));
+      .pipe(
+        tap((response) => {
+          localStorage.setItem('access_token', response.access);
+          localStorage.setItem('refresh_token', response.refresh);
+        }),
+      );
+  }
+
+  refreshToken(refresh: string) {
+    return this.httpClient
+      .post<LoginResponse>(environment.apiUrl + '/users/auth/refresh/', {
+        refresh,
+      })
+      .pipe(
+        tap((response) => {
+          localStorage.setItem('access_token', response.access);
+          localStorage.setItem('refresh_token', response.refresh);
+        }),
+      );
   }
 }
