@@ -3,6 +3,8 @@ from typing import cast
 from django.contrib.gis.db.models.functions import Distance as DistanceFunc
 from django.db.models import QuerySet
 
+from apps.matches.models import Swipe
+
 from ..models import Profile, ProfileQuerySet
 
 
@@ -30,6 +32,11 @@ def apply_matching_filters(
         user_profile.blocks_given.values_list("blocked_id", flat=True)  # type: ignore
     )
 
+    # Excluimos usuarios a los que ya les hemos dado like
+    liked_users = list(
+        Swipe.objects.filter(swiper=user_profile).values_list("target_id", flat=True)
+    )
+    excluded_ids.extend(liked_users)
     # Añadimos el perfil del usuario actual a la lista de exclusión.
     # Es más eficiente filtrar por ID (Primary Key) que por foreign key (custom_user_id).
     excluded_ids.append(user_profile.id)
