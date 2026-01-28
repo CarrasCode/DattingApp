@@ -14,7 +14,15 @@ export class Home {
   users = this.userService.users;
   matchesCount = this.userService.matchesCount;
 
-  removeUser(name: string) {
-    this.userService.removeUser(name);
+  onSwipe(id: number, value: 'LIKE' | 'DISLIKE') {
+    const userBackup = this.users().find((u) => u.id === id);
+
+    this.userService.sendSwipe(id, value).subscribe({
+      next: (data) => console.log(data),
+      error: (err) => {
+        console.log(err);
+        if (userBackup) this.userService.undoRemove(userBackup);
+      },
+    });
   }
 }

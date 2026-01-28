@@ -1,6 +1,6 @@
 @defer (on viewport) {
   @for (user of users(); track $index) {
-    <app-user-card [user]="user" (remove)="removeUser(user.name)"></app-user-card>
+    <app-user-card [user]="user" (swipe)="onSwipe(user.id, $event)"></app-user-card>
   }
 } @placeholder {
   <p>Cargando modulo de citas...</p>

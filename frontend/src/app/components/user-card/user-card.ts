@@ -10,9 +10,9 @@ import { User } from '../../models/user';
 export class UserCard {
   user = input.required<User>();
 
-  remove = output<void>();
+  swipe = output<'LIKE' | 'DISLIKE'>();
 
-  onRemove() {
-    this.remove.emit();
+  onSwipe(value: 'LIKE' | 'DISLIKE') {
+    this.swipe.emit(value);
   }
 }

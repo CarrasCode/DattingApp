@@ -1,5 +1,7 @@
 <div class="card">
-  <h3>{{ user().name }}</h3>
+  <h3>{{ user().first_name }}</h3>
   <p>Edad: {{ user().age }}</p>
-  <button (click)="onRemove()">❌</button>
+  <img [src]="user().photos[0]?.url" alt="" />
+  <button (click)="onSwipe('DISLIKE')">❌</button>
+  <button (click)="onSwipe('LIKE')">✅</button>
 </div>
