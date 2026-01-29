@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { signal, computed } from '@angular/core';
-import { User } from '../models/user';
+import { ICurrentProfile, IEditProfile, User } from '../models/user';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 @Injectable({
@@ -10,11 +10,13 @@ export class UserService {
   private httpClient = inject(HttpClient);
   users = signal<User[]>([]);
   matchesCount = computed(() => this.users().length);
+  currentUser = signal<ICurrentProfile | null>(null);
 
   constructor() {
     this.getUsers();
+    this.getCurrentUser();
   }
-  private removeUser(id: number) {
+  private removeUser(id: string) {
     this.users.update((users) => users.filter((u) => u.id !== id));
   }
 
@@ -23,8 +25,13 @@ export class UserService {
       .get<User[]>(environment.apiUrl + '/users/profiles/')
       .subscribe({ next: (data) => this.users.set(data), error: (err) => console.log(err) });
   }
+  getCurrentUser() {
+    this.httpClient
+      .get<ICurrentProfile>(environment.apiUrl + '/users/profiles/me/')
+      .subscribe({ next: (data) => this.currentUser.set(data), error: (err) => console.log(err) });
+  }
 
-  sendSwipe(targetId: number, action: 'LIKE' | 'DISLIKE') {
+  sendSwipe(targetId: string, action: 'LIKE' | 'DISLIKE') {
     // 1. Eliminamos visualmente al usuario YA (falsa sensación de velocidad)
     this.removeUser(targetId);
 
@@ -34,7 +41,11 @@ export class UserService {
       value: action,
     });
   }
-
+  updateProfile(profile: IEditProfile) {
+    this.httpClient.put(environment.apiUrl + '/users/profiles/me/', {
+      profile,
+    });
+  }
   undoRemove(user: User) {
     this.users.update((prev) => [user, ...prev]);
   }
