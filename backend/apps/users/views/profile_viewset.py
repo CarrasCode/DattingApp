@@ -33,7 +33,7 @@ class ProfileViewSet(
 
     # --- OPTIMIZACIÓN DE BD ---
     @override
-    def get_queryset(self):  # type: ignore[override]
+    def get_queryset(self):
         """
         Aquí resolvemos el problema N+1.
         Si tienes 20 perfiles y cada uno tiene fotos y usuario,
@@ -64,7 +64,7 @@ class ProfileViewSet(
     # --- SERIALIZADOR DINÁMICO ---
 
     @override
-    def get_serializer_class(self):  # type: ignore[override]
+    def get_serializer_class(self):
         # 1. Escritura (Crear/Editar) -> Serializador de validación inputs
         if self.action in ["create", "update", "partial_update"]:
             return ProfileWriteSerializer
@@ -80,7 +80,7 @@ class ProfileViewSet(
         return PublicProfileSerializer
 
     @override
-    def get_object(self) -> Profile:  # type: ignore[override]
+    def get_object(self) -> Profile:
         """
         Sobrescribe get_object para manejar la acción 'me' de forma optimizada.
 

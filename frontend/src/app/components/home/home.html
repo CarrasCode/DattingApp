@@ -1,3 +1,4 @@
+<h3>Hello {{ userService.currentUser()?.first_name }}</h3>
 @defer (on viewport) {
   @for (user of users(); track $index) {
     <app-user-card [user]="user" (swipe)="onSwipe(user.id, $event)"></app-user-card>
@@ -6,4 +7,7 @@
   <p>Cargando modulo de citas...</p>
 } @loading {
   <p>Bajando Datos...</p>
+}
+@if (showMatchModal()) {
+  <app-match-modal (modalEmit)="cerrarModal()" />
 }
