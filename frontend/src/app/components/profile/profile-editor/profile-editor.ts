@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../../services/user-service';
-import { IEditProfile } from '../../../models/user';
+import { IEditProfile, PhotoUpload } from '../../../models/user';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -13,6 +13,7 @@ import { lastValueFrom } from 'rxjs';
 export class ProfileEditor {
   userService = inject(UserService);
   profile = this.userService.currentUser;
+  selectedFile: File | null = null;
 
   state = signal({
     loading: false,
@@ -50,6 +51,19 @@ export class ProfileEditor {
     max_age: new FormControl(99, [Validators.max(100), Validators.required]),
   });
 
+  photoForm = new FormGroup({
+    image: new FormControl(),
+    caption: new FormControl(''),
+    is_main: new FormControl(false),
+  });
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.selectedFile = input.files[0];
+      this.photoForm.patchValue({ image: input.files[0] });
+    }
+  }
   async onSubmit() {
     if (!this.profileEditor.valid) {
       console.log(this.profileEditor);
@@ -63,6 +77,44 @@ export class ProfileEditor {
     try {
       const response = await lastValueFrom(
         this.userService.updateProfile(this.profileEditor.value as IEditProfile),
+      );
+
+      this.state.set({
+        loading: false,
+        success: true,
+        error: null,
+      });
+      console.log(response);
+      setTimeout(() => {
+        this.state.set({
+          loading: false,
+          success: false,
+          error: null,
+        });
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      this.state.set({
+        error: 'Ocurrio un error, prueba otra vez',
+        loading: false,
+        success: false,
+      });
+    }
+  }
+
+  async onSubmitPhoto() {
+    if (!this.photoForm.valid) {
+      console.log(this.photoForm);
+      return;
+    }
+    this.state.set({
+      error: null,
+      loading: true,
+      success: false,
+    });
+    try {
+      const response = await lastValueFrom(
+        this.userService.uploadPhoto(this.photoForm.value as PhotoUpload),
       );
 
       this.state.set({

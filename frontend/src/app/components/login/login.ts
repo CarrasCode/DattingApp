@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth-service';
+import { AuthService, LoginCredentials } from '../../services/auth-service';
 
 @Component({
   selector: 'app-login',
@@ -16,12 +16,11 @@ export class Login {
   });
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      console.log(this.loginForm.value);
+    if (!this.loginForm.valid) return;
+    console.log(this.loginForm.value);
 
-      this.authService
-        .login({ email: this.loginForm.value.email!, password: this.loginForm.value.password! })
-        .subscribe((token) => console.log(token));
-    }
+    this.authService
+      .login(this.loginForm.value as LoginCredentials)
+      .subscribe((token) => console.log(token));
   }
 }

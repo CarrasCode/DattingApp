@@ -46,6 +46,12 @@ export interface IEditProfile {
 export interface IPhoto {
   id: string;
   image: string;
-  is_main: boolean | null;
+  is_main: boolean;
+  caption: string | null;
+}
+
+export interface PhotoUpload {
+  image: File;
+  is_main: boolean;
   caption: string | null;
 }

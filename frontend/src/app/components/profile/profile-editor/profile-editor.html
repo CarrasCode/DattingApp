@@ -1,59 +1,91 @@
 @if (state().success) {
   <p>✅ Usuario Actualizado!</p>
 }
+@if (profile(); as profile) {
+  @if (profile.photos; as fotos) {
+    <ul>
+      @for (foto of fotos; track foto.id) {
+        <li><img [src]="foto.image" alt="" /></li>
 
-<form [formGroup]="profileEditor" (ngSubmit)="onSubmit()">
-  <label>
-    Nombre:
-    <input type="text" formControlName="first_name" />
-  </label>
-  <label>
-    Bio:
-    <textarea formControlName="bio"></textarea>
-  </label>
-  <label>
-    Trabajo:
-    <input type="text" formControlName="work" />
-  </label>
-  <label>
-    Fecha nacimiento:
-    <input type="date" formControlName="birth_date" />
-  </label>
-  <label>
-    Genero:
-    <select formControlName="gender">
-      <option value="M">Hombre</option>
-      <option value="F">Mujer</option>
-      <option value="NB">No binario</option>
-      <option value="O">Otro</option>
-    </select>
-  </label>
-  <label>
-    Preferencia:
-    <select formControlName="gender_preference">
-      <option value="M">Hombre</option>
-      <option value="F">Mujer</option>
-      <option value="A">Todo</option>
-    </select>
-  </label>
-  <label>
-    Distancia maxima:
-    <input type="number" min="0" max="500" formControlName="max_distance" />
-  </label>
-  <label>
-    Edad min:
-    <input type="number" min="18" max="100" formControlName="min_age" />
-  </label>
-  <label>
-    Edad max:
-    <input type="number" min="18" max="100" formControlName="max_age" />
-  </label>
+        <span>
+          {{ foto.caption }}
+        </span>
+      }
+    </ul>
+  }
 
-  <button type="submit" [disabled]="!profileEditor.valid">
-    @if (state().loading) {
-      Actualizando...
-    } @else {
-      Actualizar
-    }
-  </button>
-</form>
+  <form [formGroup]="profileEditor" (ngSubmit)="onSubmit()">
+    <label>
+      Nombre:
+      <input type="text" formControlName="first_name" />
+    </label>
+    <label>
+      Bio:
+      <textarea formControlName="bio"></textarea>
+    </label>
+    <label>
+      Trabajo:
+      <input type="text" formControlName="work" />
+    </label>
+    <label>
+      Fecha nacimiento:
+      <input type="date" formControlName="birth_date" />
+    </label>
+    <label>
+      Genero:
+      <select formControlName="gender">
+        <option value="M">Hombre</option>
+        <option value="F">Mujer</option>
+        <option value="NB">No binario</option>
+        <option value="O">Otro</option>
+      </select>
+    </label>
+    <label>
+      Preferencia:
+      <select formControlName="gender_preference">
+        <option value="M">Hombre</option>
+        <option value="F">Mujer</option>
+        <option value="A">Todo</option>
+      </select>
+    </label>
+    <label>
+      Distancia maxima:
+      <input type="number" min="0" max="500" formControlName="max_distance" />
+    </label>
+    <label>
+      Edad min:
+      <input type="number" min="18" max="100" formControlName="min_age" />
+    </label>
+    <label>
+      Edad max:
+      <input type="number" min="18" max="100" formControlName="max_age" />
+    </label>
+
+    <button type="submit" [disabled]="!profileEditor.valid">
+      @if (state().loading) {
+        Actualizando...
+      } @else {
+        Actualizar
+      }
+    </button>
+  </form>
+
+  <form [formGroup]="photoForm" (ngSubmit)="onSubmitPhoto()">
+    <label>
+      Sube tu foto
+      <input type="file" (change)="onFileSelected($event)" />
+    </label>
+
+    <label for="">
+      <input type="text" placeholder="Escribe tu caption para la foto" formControlName="caption" />
+    </label>
+
+    <label for="">
+      Hacerla principal
+      <input type="checkbox" value="true" formControlName="is_main" />
+    </label>
+    <button type="submit">Enviar</button>
+  </form>
+} @else {
+  <h3>Perfil no cargado</h3>
+}

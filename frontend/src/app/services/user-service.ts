@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { signal, computed } from '@angular/core';
-import { ICurrentProfile, IEditProfile, User } from '../models/user';
+import { ICurrentProfile, IEditProfile, IPhoto, PhotoUpload, User } from '../models/user';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { tap } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
@@ -20,12 +21,12 @@ export class UserService {
     this.users.update((users) => users.filter((u) => u.id !== id));
   }
 
-  getUsers() {
+  private getUsers() {
     this.httpClient
       .get<User[]>(environment.apiUrl + '/users/profiles/')
       .subscribe({ next: (data) => this.users.set(data), error: (err) => console.log(err) });
   }
-  getCurrentUser() {
+  private getCurrentUser() {
     this.httpClient
       .get<ICurrentProfile>(environment.apiUrl + '/users/profiles/me/')
       .subscribe({ next: (data) => this.currentUser.set(data), error: (err) => console.log(err) });
@@ -42,11 +43,37 @@ export class UserService {
     });
   }
   updateProfile(profile: IEditProfile) {
-    return this.httpClient.put(environment.apiUrl + '/users/profiles/me/', {
-      ...profile,
-    });
+    return this.httpClient
+      .put<IEditProfile>(environment.apiUrl + '/users/profiles/me/', {
+        ...profile,
+      })
+      .pipe(
+        tap((updateData) => {
+          this.currentUser.update((prev) => {
+            if (!prev) return null;
+            return { ...prev, ...updateData };
+          });
+        }),
+      );
   }
   undoRemove(user: User) {
     this.users.update((prev) => [user, ...prev]);
+  }
+
+  uploadPhoto(imagen: PhotoUpload) {
+    const fd = new FormData();
+    fd.append('image', imagen.image);
+    fd.append('is_main', imagen.is_main ? 'true' : 'false');
+    if (imagen.caption) fd.append('caption', imagen.caption);
+
+    return this.httpClient.post<IPhoto>(environment.apiUrl + '/users/photos/', fd).pipe(
+      tap((updated) =>
+        this.currentUser.update((prev) => {
+          if (!prev) return null;
+          const photos = [...prev.photos, updated];
+          return { ...prev, photos };
+        }),
+      ),
+    );
   }
 }
