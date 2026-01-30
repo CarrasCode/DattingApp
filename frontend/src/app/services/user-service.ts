@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class UserService {
-  private httpClient = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
   users = signal<User[]>([]);
   matchesCount = computed(() => this.users().length);
   currentUser = signal<ICurrentProfile | null>(null);
@@ -42,8 +42,8 @@ export class UserService {
     });
   }
   updateProfile(profile: IEditProfile) {
-    this.httpClient.put(environment.apiUrl + '/users/profiles/me/', {
-      profile,
+    return this.httpClient.put(environment.apiUrl + '/users/profiles/me/', {
+      ...profile,
     });
   }
   undoRemove(user: User) {

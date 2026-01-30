@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../../services/user-service';
+import { IEditProfile } from '../../../models/user';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-profile-editor',
@@ -12,20 +14,77 @@ export class ProfileEditor {
   userService = inject(UserService);
   profile = this.userService.currentUser;
 
-  profileEditor = new FormGroup({
-    first_name: new FormControl(this.profile()?.first_name, Validators.required),
-    bio: new FormControl(this.profile()?.bio),
-    work: new FormControl(this.profile()?.work),
-    birth_date: new FormControl(this.profile()?.birth_date),
-    gender: new FormControl(this.profile()?.gender, [Validators.required]),
-    gender_preference: new FormControl(this.profile()?.gender_preference, [Validators.required]),
-    max_distance: new FormControl(this.profile()?.max_distance, [Validators.required]),
-    min_age: new FormControl(this.profile()?.min_age, [Validators.min(18), Validators.required]),
-    max_age: new FormControl(this.profile()?.max_age, [Validators.max(100), Validators.required]),
+  state = signal({
+    loading: false,
+    error: null as string | null,
+    success: false,
   });
 
-  onSubmit() {
-    console.log(this.profileEditor.value);
-    // this.userService.updateProfile(this.profileEditor.value);
+  constructor() {
+    effect(() => {
+      const user = this.profile();
+      if (user) {
+        this.profileEditor.patchValue({
+          first_name: user.first_name,
+          bio: user.bio,
+          work: user.work,
+          birth_date: user.birth_date,
+          gender: user.gender,
+          gender_preference: user.gender_preference,
+          max_distance: user.max_distance,
+          min_age: user.min_age,
+          max_age: user.max_age,
+        });
+      }
+    });
+  }
+  profileEditor = new FormGroup({
+    first_name: new FormControl('', Validators.required),
+    bio: new FormControl(''),
+    work: new FormControl(''),
+    birth_date: new FormControl(''),
+    gender: new FormControl(this.profile()?.gender, [Validators.required]),
+    gender_preference: new FormControl(this.profile()?.gender_preference, [Validators.required]),
+    max_distance: new FormControl(0, [Validators.required]),
+    min_age: new FormControl(18, [Validators.min(18), Validators.required]),
+    max_age: new FormControl(99, [Validators.max(100), Validators.required]),
+  });
+
+  async onSubmit() {
+    if (!this.profileEditor.valid) {
+      console.log(this.profileEditor);
+      return;
+    }
+    this.state.set({
+      error: null,
+      loading: true,
+      success: false,
+    });
+    try {
+      const response = await lastValueFrom(
+        this.userService.updateProfile(this.profileEditor.value as IEditProfile),
+      );
+
+      this.state.set({
+        loading: false,
+        success: true,
+        error: null,
+      });
+      console.log(response);
+      setTimeout(() => {
+        this.state.set({
+          loading: false,
+          success: false,
+          error: null,
+        });
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      this.state.set({
+        error: 'Ocurrio un error, prueba otra vez',
+        loading: false,
+        success: false,
+      });
+    }
   }
 }

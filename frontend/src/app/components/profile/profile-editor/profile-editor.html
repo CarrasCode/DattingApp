@@ -1,3 +1,7 @@
+@if (state().success) {
+  <p>✅ Usuario Actualizado!</p>
+}
+
 <form [formGroup]="profileEditor" (ngSubmit)="onSubmit()">
   <label>
     Nombre:
@@ -44,5 +48,12 @@
     Edad max:
     <input type="number" min="18" max="100" formControlName="max_age" />
   </label>
-  <button type="submit" [disabled]="">Actualizar</button>
+
+  <button type="submit" [disabled]="!profileEditor.valid">
+    @if (state().loading) {
+      Actualizando...
+    } @else {
+      Actualizar
+    }
+  </button>
 </form>
