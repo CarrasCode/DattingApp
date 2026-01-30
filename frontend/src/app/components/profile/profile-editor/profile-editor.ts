@@ -139,4 +139,35 @@ export class ProfileEditor {
       });
     }
   }
+  async onDeletePhoto(photoId: string) {
+    this.state.set({
+      error: null,
+      loading: true,
+      success: false,
+    });
+    try {
+      await lastValueFrom(this.userService.deletePhoto(photoId));
+
+      this.state.set({
+        loading: false,
+        success: true,
+        error: null,
+      });
+
+      setTimeout(() => {
+        this.state.set({
+          loading: false,
+          success: false,
+          error: null,
+        });
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      this.state.set({
+        error: 'Ocurrio un error, prueba otra vez',
+        loading: false,
+        success: false,
+      });
+    }
+  }
 }

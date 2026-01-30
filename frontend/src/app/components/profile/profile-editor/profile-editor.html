@@ -5,7 +5,10 @@
   @if (profile.photos; as fotos) {
     <ul>
       @for (foto of fotos; track foto.id) {
-        <li><img [src]="foto.image" alt="" /></li>
+        <li>
+          <img [src]="foto.image" alt="" />
+          <button (click)="onDeletePhoto(foto.id)">❌</button>
+        </li>
 
         <span>
           {{ foto.caption }}

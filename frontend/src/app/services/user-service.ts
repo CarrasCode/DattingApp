@@ -76,4 +76,15 @@ export class UserService {
       ),
     );
   }
+  deletePhoto(photoId: string) {
+    return this.httpClient.delete<void>(environment.apiUrl + `/users/photos/${photoId}/`).pipe(
+      tap(() => {
+        this.currentUser.update((prev) => {
+          if (!prev) return null;
+          const photos = prev.photos.filter((p) => p.id !== photoId);
+          return { ...prev, photos: photos };
+        });
+      }),
+    );
+  }
 }
