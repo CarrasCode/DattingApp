@@ -3,7 +3,6 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, retry } from 'rxjs';
-import { UserService } from './user-service';
 
 export interface ChatMessage {
   text: string;
@@ -27,10 +26,9 @@ export class ChatService {
   // 1. La variable guarda la conexión activa, puede ser null al principio
   private socket$: WebSocketSubject<WSSendPayload | WSReceivePayload> | null = null;
   messages = signal<ChatMessage[]>([]);
-  private userService = inject(UserService);
   // 2. El State local
 
-  connect(matchId: string) {
+  connect(matchId: string, currentUserId: string) {
     const token = localStorage.getItem('access_token');
     const url = `${environment.wsUrl}/${matchId}/?token=${token}`;
     this.getHistory(matchId);
@@ -42,7 +40,7 @@ export class ChatService {
       const payload = data as WSReceivePayload;
       const uiMessage: ChatMessage = {
         text: payload.message,
-        is_me: payload.sender_id === this.userService.currentUser()?.id,
+        is_me: payload.sender_id === currentUserId,
         created_at: payload.timestamp,
       };
       this.messages.update((prev) => [...prev, uiMessage]);

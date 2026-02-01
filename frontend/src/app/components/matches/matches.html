@@ -1,0 +1,10 @@
+<ul>
+  @for (match of matches(); track match.id) {
+    {{ match.other_user.first_name }}
+
+    <img [src]="match.other_user.photos[0]?.image" alt="" />
+    <button [routerLink]="['/chat', match.id]">Chatear</button>
+  } @empty {
+    <h2>Todavia no tienes matches!</h2>
+  }
+</ul>

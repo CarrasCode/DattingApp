@@ -21,7 +21,7 @@ export class Home {
     this.userService.sendSwipe(id, value).subscribe({
       next: (data) => {
         console.log(data);
-        this.showMatchModal.set(true);
+        if (data.match) this.showMatchModal.set(true);
       },
       error: (err) => {
         console.log(err);
