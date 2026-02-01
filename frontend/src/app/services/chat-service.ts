@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, retry } from 'rxjs';
 import { UserService } from './user-service';
 
 export interface ChatMessage {
@@ -55,7 +55,9 @@ export class ChatService {
   async getHistory(matchId: string) {
     try {
       const history = await lastValueFrom(
-        this.http.get<ChatMessage[]>(`${environment.apiUrl}/chat/messages/?match_id=${matchId}`),
+        this.http
+          .get<ChatMessage[]>(`${environment.apiUrl}/chat/messages/?match_id=${matchId}`)
+          .pipe(retry({ count: 3, delay: 2000 })),
       );
       this.messages.set(history.reverse());
     } catch (e) {
