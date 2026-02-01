@@ -32,15 +32,17 @@ export interface ICurrentProfile {
   location: string;
 }
 export interface IEditProfile {
-  first_name: string;
-  bio: string | null;
-  work: string | null;
-  gender: IGender;
-  birth_date: string;
-  gender_preference: IGenderPref | null;
-  max_distance: number | null;
-  min_age: number | null;
-  max_age: number | null;
+  first_name?: string;
+  bio?: string | null;
+  work?: string | null;
+  gender?: IGender;
+  birth_date?: string;
+  gender_preference?: IGenderPref | null;
+  max_distance?: number | null;
+  min_age?: number | null;
+  max_age?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface IPhoto {

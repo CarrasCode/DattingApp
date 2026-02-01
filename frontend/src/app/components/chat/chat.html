@@ -1,0 +1,30 @@
+<ul>
+  @for (msg of messages(); track $index) {
+    <li>
+      <strong>
+        @if (msg.sender_id === currentUser()?.id) {
+          <strong>Yo:</strong>
+        } @else {
+          <strong>Ellos:</strong>
+        }
+      </strong>
+
+      {{ msg.message }}
+    </li>
+    <p>{{ currentUser()?.id }}</p>
+    <p>{{ msg.sender_id }}</p>
+  } @empty {
+    <h3>No hay mensajes todavía</h3>
+  }
+</ul>
+
+<div class="chat-input">
+  <input
+    type="text"
+    [ngModel]="newMessage()"
+    (ngModelChange)="newMessage.set($event)"
+    (keyup.enter)="sendMessage()"
+    placeholder="Escribe algo..."
+  />
+  <button (click)="sendMessage()">Enviar</button>
+</div>
