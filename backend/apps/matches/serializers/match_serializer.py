@@ -22,7 +22,7 @@ class MatchSerializer(serializers.ModelSerializer):
 
         current_profile = request.user.profile
         target = obj.user_b if obj.user_a == current_profile else obj.user_a
-        return PublicProfileSerializer(target).data
+        return PublicProfileSerializer(target, context=self.context).data
 
     def get_distance(self, obj):
         if hasattr(obj, "distance_val") and obj.distance_val:

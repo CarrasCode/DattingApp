@@ -1,4 +1,11 @@
 <header>
   <h1>{{ appName() }} Matches: {{ matchesCount() }}</h1>
-  <button>Sorpréndeme</button>
+  <nav>
+    <ul>
+      <li><a routerLink="/" routerLinkActive="active-link">Inicio</a></li>
+      <li><a routerLink="/match" routerLinkActive="active-link">Matches</a></li>
+      <li><a routerLink="/edit" routerLinkActive="active-link">Editar perfil</a></li>
+      <li><a routerLink="/login" routerLinkActive="active-link">Logueate</a></li>
+    </ul>
+  </nav>
 </header>
