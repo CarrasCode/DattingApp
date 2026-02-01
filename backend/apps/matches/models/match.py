@@ -33,7 +33,7 @@ class Match(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"Match: {self.user_a} <-> {self.user_b}"
+        return f"Match {self.id}: {self.user_a} <-> {self.user_b}"
 
     def save(self, *args, **kwargs):
         self.clean()

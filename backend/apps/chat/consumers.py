@@ -65,7 +65,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not message_text:
             return
 
-        user_id = self.scope.get("user").id
+        user_id = self.scope.get("user").profile.id
         # ID del usuario logueado (gracias al AuthMiddleware)
 
         # 1. Guardar mensaje en Base de Datos (Función auxiliar)
@@ -83,7 +83,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 "type": "chat_message",  # Llama al método chat_message de abajo
                 "message": message_text,
-                "sender_id": user_id,
+                "sender_id": str(user_id),
                 "timestamp": str(saved_message.created_at),
             },
         )
