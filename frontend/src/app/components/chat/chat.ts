@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, input, OnDestroy, signal } from '@angular/core';
 import { ChatService } from '../../services/chat-service';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { UserService } from '../../services/user-service';
 
 @Component({
   selector: 'app-chat',
@@ -9,13 +10,20 @@ import { DatePipe } from '@angular/common';
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
 })
-export class Chat implements OnInit {
+export class Chat implements OnDestroy {
   private readonly chatService = inject(ChatService);
+  private readonly userService = inject(UserService);
   messages = this.chatService.messages;
+  id = input<string>();
 
   newMessage = signal('');
-  ngOnInit(): void {
-    this.chatService.connect('9f3944ee-5c31-4500-b71c-b8d15b070fb8');
+  constructor() {
+    effect(() => {
+      const userId = this.userService.currentUser()?.id;
+      const matchId = this.id();
+
+      if (userId && matchId) this.chatService.connect(matchId, userId);
+    });
   }
 
   sendMessage() {
@@ -23,5 +31,8 @@ export class Chat implements OnInit {
 
     this.chatService.sendMessage(this.newMessage());
     this.newMessage.set('');
+  }
+  ngOnDestroy(): void {
+    this.chatService.disconnect();
   }
 }
