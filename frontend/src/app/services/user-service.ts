@@ -42,10 +42,10 @@ export class UserService {
       value: action,
     });
   }
-  updateProfile(profile: IEditProfile) {
+  updateProfile(datosNuevos: IEditProfile) {
     return this.httpClient
-      .put<IEditProfile>(environment.apiUrl + '/users/profiles/me/', {
-        ...profile,
+      .patch<IEditProfile>(environment.apiUrl + '/users/profiles/me/', {
+        ...datosNuevos,
       })
       .pipe(
         tap((updateData) => {

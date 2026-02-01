@@ -170,4 +170,37 @@ export class ProfileEditor {
       });
     }
   }
+  updateLocation() {
+    this.state.update((prev) => ({ ...prev, loading: true }));
+
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        this.userService.updateProfile(coords).subscribe({
+          next: () => {
+            console.log('Ubicacion actualizada');
+            console.log(this.profile()?.location);
+            this.state.update((prev) => ({ ...prev, loading: false, success: true }));
+          },
+          error: () => {
+            this.state.set({ error: 'Problema con el backend', loading: false, success: false });
+          },
+        });
+      },
+      (err) => {
+        // ERROR: El usuario denegó permisos o falló el GPS
+        console.error(err);
+        this.state.update((prev) => ({
+          ...prev,
+          loading: false,
+          error: 'No se pudo obtener ubicación',
+        }));
+      },
+    );
+  }
 }

@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import Point
 from rest_framework import serializers
 
 from ..models import Profile
@@ -91,6 +92,9 @@ class ProfileWriteSerializer(serializers.ModelSerializer):
     Valida los datos de entrada para actualizar el perfil.
     """
 
+    latitude = serializers.FloatField(write_only=True, required=False)
+    longitude = serializers.FloatField(write_only=True, required=False)
+
     birth_date = serializers.DateField(validators=[validate_adult_age])
 
     class Meta:
@@ -105,4 +109,14 @@ class ProfileWriteSerializer(serializers.ModelSerializer):
             "max_distance",
             "min_age",
             "max_age",
+            "latitude",
+            "longitude",
         ]
+
+    def update(self, instance: Profile, validated_data):
+        # Extraer y eliminar del dict para que no rompa el super().update
+        lat = validated_data.pop("latitude", None)
+        lng = validated_data.pop("longitude", None)
+        if lat is not None and lng is not None:
+            instance.location = Point(float(lng), float(lat))  # (x, y) = (lng, lat)
+        return super().update(instance, validated_data)
