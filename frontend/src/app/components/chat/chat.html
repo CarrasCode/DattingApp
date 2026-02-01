@@ -1,30 +1,28 @@
-<ul>
-  @for (msg of messages(); track $index) {
-    <li>
-      <strong>
-        @if (msg.sender_id === currentUser()?.id) {
-          <strong>Yo:</strong>
-        } @else {
-          <strong>Ellos:</strong>
-        }
-      </strong>
+<div class="chat-container">
+  <ul class="message-list">
+    @for (msg of messages(); track $index) {
+      <li class="message-bubble" [class.me]="msg.is_me" [class.them]="!msg.is_me">
+        <div class="bubble-content">
+          {{ msg.text }}
+          <span class="timestamp">{{ msg.created_at | date: 'shortTime' }}</span>
+        </div>
+      </li>
+    } @empty {
+      <div class="empty-state">
+        <p>👋 ¡Di hola! No hay mensajes aún.</p>
+      </div>
+    }
+  </ul>
 
-      {{ msg.message }}
-    </li>
-    <p>{{ currentUser()?.id }}</p>
-    <p>{{ msg.sender_id }}</p>
-  } @empty {
-    <h3>No hay mensajes todavía</h3>
-  }
-</ul>
-
-<div class="chat-input">
-  <input
-    type="text"
-    [ngModel]="newMessage()"
-    (ngModelChange)="newMessage.set($event)"
-    (keyup.enter)="sendMessage()"
-    placeholder="Escribe algo..."
-  />
-  <button (click)="sendMessage()">Enviar</button>
+  <div class="chat-input-area">
+    <input
+      type="text"
+      [class.has-text]="newMessage().length > 0"
+      [ngModel]="newMessage()"
+      (ngModelChange)="newMessage.set($event)"
+      (keyup.enter)="sendMessage()"
+      placeholder="Escribe un mensaje..."
+    />
+    <button (click)="sendMessage()" [disabled]="!newMessage().trim()">➤</button>
+  </div>
 </div>

@@ -11,7 +11,7 @@ import { MatchModal } from '../match-modal/match-modal';
 })
 export class Home {
   userService = inject(UserService);
-  showMatchModal = signal<boolean>(true);
+  showMatchModal = signal<boolean>(false);
   users = this.userService.users;
   matchesCount = this.userService.matchesCount;
 
