@@ -27,7 +27,8 @@ class UserPhotoUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserPhoto
-        fields = ["image", "caption", "is_main"]
+        fields = ["id", "image", "caption", "is_main"]
+        read_only_fields = ["id"]
 
     def validate_image(self, value):
         # Validación extra: No dejar subir archivos según el tamaño

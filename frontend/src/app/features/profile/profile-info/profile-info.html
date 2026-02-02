@@ -1,0 +1,179 @@
+<!-- Feedback Messages -->
+@if (state().success) {
+  <div class="feedback-msg success">✅ Perfil actualizado correctamente</div>
+}
+@if (state().error) {
+  <div class="feedback-msg error">❌ {{ state().error }}</div>
+}
+
+@if (editMode()) {
+  <!-- ==================== EDIT MODE ==================== -->
+  <div class="edit-mode-container">
+    <div class="location-btn-wrapper">
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="updateLocation()"
+        [disabled]="state().loading"
+      >
+        📍 {{ state().loading ? 'Actualizando...' : 'Actualizar Ubicación' }}
+      </button>
+    </div>
+
+    <form [formGroup]="profileEditor" (ngSubmit)="onSubmit()" class="profile-form">
+      <!-- Sección: Información Personal -->
+      <fieldset>
+        <legend>👤 Información Personal</legend>
+
+        <label>
+          <span>Nombre</span>
+          <input type="text" formControlName="first_name" placeholder="Tu nombre" />
+        </label>
+
+        <label class="full-width">
+          <span>Biografía</span>
+          <textarea formControlName="bio" rows="4" placeholder="Cuéntanos sobre ti..."></textarea>
+        </label>
+
+        <label>
+          <span>Trabajo</span>
+          <input type="text" formControlName="work" placeholder="¿A qué te dedicas?" />
+        </label>
+
+        <label>
+          <span>Fecha de nacimiento</span>
+          <input type="date" formControlName="birth_date" />
+        </label>
+
+        <label>
+          <span>Género</span>
+          <select formControlName="gender">
+            <option value="M">Hombre</option>
+            <option value="F">Mujer</option>
+            <option value="NB">No binario</option>
+            <option value="O">Otro</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <!-- Sección: Preferencias de Búsqueda -->
+      <fieldset>
+        <legend>💘 Preferencias de Búsqueda</legend>
+
+        <label>
+          <span>Busco</span>
+          <select formControlName="gender_preference">
+            <option value="M">Hombres</option>
+            <option value="F">Mujeres</option>
+            <option value="A">Cualquiera</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Distancia máxima (km)</span>
+          <input type="number" min="1" max="500" formControlName="max_distance" />
+        </label>
+
+        <div class="age-range">
+          <label>
+            <span>Edad mínima</span>
+            <input type="number" min="18" max="100" formControlName="min_age" />
+          </label>
+          <label>
+            <span>Edad máxima</span>
+            <input type="number" min="18" max="100" formControlName="max_age" />
+          </label>
+        </div>
+      </fieldset>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="!profileEditor.valid || state().loading"
+      >
+        @if (state().loading) {
+          ⏳ Guardando...
+        } @else {
+          💾 Guardar Cambios
+        }
+      </button>
+    </form>
+  </div>
+} @else {
+  <!-- ==================== VIEW MODE ==================== -->
+  @if (profile(); as user) {
+    <div class="profile-view">
+      <!-- Card Principal -->
+      <section class="profile-card">
+        <div class="profile-header">
+          <h2>{{ user.first_name }}</h2>
+          <span class="age-badge">{{ user.age }} años</span>
+        </div>
+
+        @if (user.bio) {
+          <p class="bio">{{ user.bio }}</p>
+        }
+
+        @if (user.work) {
+          <div class="info-row">
+            <span class="icon">💼</span>
+            <span>{{ user.work }}</span>
+          </div>
+        }
+
+        <div class="info-row">
+          <span class="icon">📧</span>
+          <span>{{ user.email }}</span>
+        </div>
+
+        @if (user.location) {
+          <div class="info-row">
+            <span class="icon">📍</span>
+            <span>{{ user.location }}</span>
+          </div>
+        }
+      </section>
+
+      <!-- Card de Preferencias -->
+      <section class="preferences-card">
+        <h3>💘 Mis Preferencias</h3>
+
+        <div class="preference-grid">
+          <div class="preference-item">
+            <span class="label">Busco</span>
+            <span class="value">
+              @switch (user.gender_preference?.gender) {
+                @case ('M') {
+                  Hombres
+                }
+                @case ('F') {
+                  Mujeres
+                }
+                @case ('A') {
+                  Cualquiera
+                }
+                @default {
+                  cualquiera
+                }
+              }
+            </span>
+          </div>
+
+          <div class="preference-item">
+            <span class="label">Rango de edad</span>
+            <span class="value">{{ user.min_age }} - {{ user.max_age }} años</span>
+          </div>
+
+          <div class="preference-item">
+            <span class="label">Distancia máxima</span>
+            <span class="value">{{ user.max_distance }} km</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  } @else {
+    <div class="loading-state">
+      <p>⏳ Cargando tu perfil...</p>
+    </div>
+  }
+}

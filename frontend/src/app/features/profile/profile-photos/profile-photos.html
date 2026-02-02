@@ -1,0 +1,53 @@
+@if (state().success) {
+  <p class="feedback-msg success">✅ Operación realizada con éxito!</p>
+}
+
+<div class="photos-wrapper">
+  <!-- Área de Subida (Solo en modo edición) -->
+  @if (editMode()) {
+    <form [formGroup]="photoForm" (ngSubmit)="onSubmitPhoto()" class="upload-area">
+      <label>
+        <span class="icon">☁️</span>
+        <span>Haz clic para subir una foto</span>
+        <input type="file" (change)="onFileSelected($event)" />
+      </label>
+
+      @if (selectedFile(); as selectedFile) {
+        <p>Archivo seleccionado: {{ selectedFile.name }}</p>
+        <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: center">
+          <input type="text" placeholder="Pie de foto..." formControlName="caption" />
+          <label style="flex-direction: row">
+            <input type="checkbox" formControlName="is_main" /> Principal
+          </label>
+        </div>
+        <button
+          type="submit"
+          [disabled]="!photoForm.valid || state().loading"
+          style="margin-top: 1rem"
+        >
+          {{ state().loading ? 'Subiendo...' : 'Subir Foto' }}
+        </button>
+      }
+    </form>
+  }
+
+  <!-- Grid de Fotos -->
+  <div class="photos-grid">
+    @for (photo of photos(); track photo.id) {
+      <div class="photo-card" [class.is-main]="photo.is_main">
+        <img [src]="photo.image" [alt]="photo.caption || 'Foto de usuario'" />
+
+        <!-- Acciones (Solo en modo edición) -->
+        @if (editMode()) {
+          <div class="actions">
+            <button (click)="onDeletePhoto(photo.id)" title="Eliminar foto">🗑️</button>
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>📸 No tienes fotos aún. ¡Sube la primera!</p>
+      </div>
+    }
+  </div>
+</div>

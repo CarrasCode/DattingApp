@@ -9,10 +9,10 @@ export interface User {
   distance_km: string;
 }
 
-interface IGender {
+export interface IGender {
   gender: 'M' | 'F' | 'NB' | 'O';
 }
-interface IGenderPref {
+export interface IGenderPref {
   gender: 'M' | 'F' | 'A';
 }
 export interface ICurrentProfile {

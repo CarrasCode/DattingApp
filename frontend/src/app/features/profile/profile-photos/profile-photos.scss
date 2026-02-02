@@ -1,0 +1,119 @@
+:host {
+  display: block;
+}
+
+// Contenedor principal
+.photos-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// Boton de subida (solo visible en modo edición)
+.upload-area {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s;
+  background-color: #f9fafb;
+
+  &:hover {
+    border-color: #4f46e5;
+    background-color: #eef2ff;
+  }
+
+  label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4b5563;
+
+    input[type='file'] {
+      display: none; // Ocultar input feo
+    }
+
+    .icon {
+      font-size: 2rem;
+    }
+  }
+}
+
+// Grid de fotos
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.photo-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1; // Cuadradas
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  // Overlay de acciones (borrar)
+  .actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    opacity: 0; // Oculto por defecto
+    transition: opacity 0.2s;
+
+    button {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+
+      &:hover {
+        background: white;
+        color: red;
+      }
+    }
+  }
+
+  // Hover effect
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+    .actions {
+      opacity: 1; // Mostrar al pasar ratón
+    }
+  }
+
+  // Etiqueta "Principal"
+  &.is-main {
+    border: 3px solid #4f46e5;
+
+    &::after {
+      content: 'Principal';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(79, 70, 229, 0.9);
+      color: white;
+      text-align: center;
+      padding: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+}

@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
-import { ProfileEditor } from './features/profile/profile-editor/profile-editor';
 import { Register } from './features/auth/register/register';
 import { Chat } from './features/social/chat/chat';
 import { authGuard } from './core/guards/auth-guard';
 import { Home } from './features/home/home';
 import { Matches } from '@features/social/matches/matches';
+import { Profile } from '@features/profile/profile';
+import { ProfileInfo } from '@features/profile/profile-info/profile-info';
+import { ProfilePhotos } from '@features/profile/profile-photos/profile-photos';
 
 export const routes: Routes = [
   { path: '', canActivate: [authGuard], component: Home },
@@ -17,5 +19,13 @@ export const routes: Routes = [
     component: Matches,
     children: [{ path: ':id', component: Chat }],
   },
-  { path: 'edit', canActivate: [authGuard], component: ProfileEditor },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    component: Profile,
+    children: [
+      { path: 'info', component: ProfileInfo },
+      { path: 'photos', component: ProfilePhotos },
+    ],
+  },
 ];
