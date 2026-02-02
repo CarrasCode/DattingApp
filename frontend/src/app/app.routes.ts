@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { Home } from './components/home/home';
-import { Login } from './components/login/login';
-import { ProfileEditor } from './components/profile/profile-editor/profile-editor';
-import { Register } from './components/register/register';
-import { Chat } from './components/chat/chat';
-import { Matches } from './components/matches/matches';
+import { Login } from './features/auth/login/login';
+import { ProfileEditor } from './features/profile/profile-editor/profile-editor';
+import { Register } from './features/auth/register/register';
+import { Chat } from './features/social/chat/chat';
+import { Matches } from './features/social/matches/matches';
 import { authGuard } from './core/guards/auth-guard';
+import { Home } from './features/home/home';
 
 export const routes: Routes = [
   { path: '', canActivate: [authGuard], component: Home },

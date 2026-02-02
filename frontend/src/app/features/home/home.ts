@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
-import { UserService } from '../../services/user-service';
-import { UserCard } from '../user-card/user-card';
-import { MatchModal } from '../match-modal/match-modal';
+import { UserService } from '@core/services/user-service';
+import { UserCard } from '@shared/components/user-card/user-card';
+import { MatchModal } from '@shared/components/match-modal/match-modal';
 
 @Component({
   selector: 'app-home',

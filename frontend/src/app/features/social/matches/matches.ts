@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MatchService } from '../../services/match-service';
+import { MatchService } from '@core/services/match-service';
 import { RouterLink } from '@angular/router';
 
 @Component({

@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, retry } from 'rxjs';
 

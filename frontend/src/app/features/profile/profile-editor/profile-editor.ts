@@ -1,8 +1,9 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UserService } from '../../../services/user-service';
-import { IEditProfile, PhotoUpload } from '../../../models/user';
+
 import { lastValueFrom } from 'rxjs';
+import { UserService } from '@core/services/user-service';
+import { IEditProfile, PhotoUpload } from '@core/models/user';
 
 @Component({
   selector: 'app-profile-editor',

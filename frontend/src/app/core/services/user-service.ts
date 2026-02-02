@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { signal, computed } from '@angular/core';
 import { ICurrentProfile, IEditProfile, IPhoto, PhotoUpload, User } from '../models/user';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 @Injectable({

@@ -1,8 +1,8 @@
 import { Component, effect, inject, input, OnDestroy, signal } from '@angular/core';
-import { ChatService } from '../../services/chat-service';
+import { ChatService } from '@core/services/chat-service';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { UserService } from '../../services/user-service';
+import { UserService } from '@core/services/user-service';
 
 @Component({
   selector: 'app-chat',
