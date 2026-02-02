@@ -18,6 +18,10 @@
         "@schematics/angular:interceptor": {
           "path": "src/app/core/interceptors",
           "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "path": "src/app/core/guards",
+          "skipTests": true
         }
       },
       "root": "",
