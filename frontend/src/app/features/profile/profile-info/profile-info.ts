@@ -19,6 +19,7 @@ export class ProfileInfo {
   toastService = inject(ToastService);
 
   profile = this.userService.currentUser;
+  mainPhoto = this.userService.mainPhoto;
   editMode = this.profileState.editMode;
 
   loading = signal(false);

@@ -12,6 +12,7 @@ export class UserService {
   users = signal<PublicProfile[]>([]);
   matchesCount = computed(() => this.users().length);
   currentUser = signal<ICurrentProfile | null>(null);
+  mainPhoto = computed(() => this.currentUser()?.photos.find((photo) => photo.is_main));
 
   constructor() {
     this.getUsers();
@@ -56,6 +57,7 @@ export class UserService {
         }),
       );
   }
+
   undoRemove(user: PublicProfile) {
     this.users.update((prev) => [user, ...prev]);
   }

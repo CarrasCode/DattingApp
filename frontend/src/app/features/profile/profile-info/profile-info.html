@@ -93,6 +93,7 @@
     <div class="profile-view">
       <!-- Card Principal -->
       <section class="profile-card">
+        <img [src]="mainPhoto()?.image" alt="" />
         <div class="profile-header">
           <h2>{{ user.first_name }}</h2>
           <span class="age-badge">{{ user.age }} años</span>
