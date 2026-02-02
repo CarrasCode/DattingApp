@@ -1,14 +1,27 @@
-<header>
-  <h1>{{ appName() }} Matches: {{ matchesCount() }}</h1>
-  <nav>
+<header class="app-header">
+  <div class="logo">
+    <h1>
+      {{ appName() }}
+      @if (matchesCount() > 0) {
+        <span class="badge">{{ matchesCount() }}</span>
+      }
+    </h1>
+  </div>
+
+  <nav class="main-nav">
     <ul>
-      <li><a routerLink="/" routerLinkActive="active-link">Inicio</a></li>
-      <li><a routerLink="/match" routerLinkActive="active-link">Matches</a></li>
-      <li><a routerLink="/edit" routerLinkActive="active-link">Editar perfil</a></li>
+      <li>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          >Inicio</a
+        >
+      </li>
+      <li><a routerLink="/matches" routerLinkActive="active">Matches</a></li>
+      <li><a routerLink="/edit" routerLinkActive="active">Perfil</a></li>
+
       @if (!isAuthenticated()) {
-        <li><a routerLink="/login" routerLinkActive="active-link">Logueate</a></li>
+        <li><a routerLink="/login" class="btn-login" routerLinkActive="active">Entrar</a></li>
       } @else {
-        <li><button (click)="logout()">Logout</button></li>
+        <li><button (click)="logout()" class="btn-logout">Salir</button></li>
       }
     </ul>
   </nav>

@@ -1,0 +1,22 @@
+<ul class="match-list">
+  @for (match of matches(); track match.id) {
+    <li class="match-item" [routerLink]="['/matches', match.id]" routerLinkActive="active">
+      <div class="avatar-container">
+        <img
+          [src]="match.other_user.photos[0]?.image || 'assets/default-avatar.png'"
+          alt="Avatar"
+          class="avatar"
+        />
+      </div>
+      <div class="match-info">
+        <span class="match-name">{{ match.other_user.first_name }}</span>
+        <span class="match-status">Haz click para chatear</span>
+      </div>
+    </li>
+  } @empty {
+    <li class="empty-state">
+      <h2>Todavía no tienes matches! 💔</h2>
+      <p>Sigue deslizando para encontrar gente.</p>
+    </li>
+  }
+</ul>

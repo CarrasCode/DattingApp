@@ -1,0 +1,65 @@
+.match-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.match-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+
+  &:hover {
+    background-color: #f0f0f0;
+    transform: translateX(5px);
+  }
+
+  &.active {
+    background-color: #e3f2fd; // Un azulito suave
+    border-right: 4px solid #2196f3;
+  }
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.match-info {
+  display: flex;
+  flex-direction: column;
+
+  .match-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .match-status {
+    font-size: 0.8rem;
+    color: #888;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+}
