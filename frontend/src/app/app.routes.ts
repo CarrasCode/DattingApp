@@ -24,6 +24,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     component: Profile,
     children: [
+      { path: '', redirectTo: 'info', pathMatch: 'full' },
       { path: 'info', component: ProfileInfo },
       { path: 'photos', component: ProfilePhotos },
     ],

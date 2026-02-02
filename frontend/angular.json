@@ -8,7 +8,7 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "path": "src/app/features",
+          "path": "src/app",
           "skipTests": true
         },
         "@schematics/angular:service": {
