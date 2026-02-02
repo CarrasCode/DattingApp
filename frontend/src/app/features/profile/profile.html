@@ -3,19 +3,17 @@
     <a routerLink="info" routerLinkActive="active-link">Info Personal</a>
     <a routerLink="photos" routerLinkActive="active-link">Mis Fotos</a>
   </nav>
+
+  <label class="edit-toggle">
+    <input
+      type="checkbox"
+      [checked]="profileStateService.editMode()"
+      (change)="profileStateService.toggleEditMode()"
+    />
+    <span>Modo Edición</span>
+  </label>
 </aside>
 
 <main>
-  <header>
-    <label>
-      <input
-        type="checkbox"
-        [checked]="profileStateService.editMode()"
-        (change)="profileStateService.toggleEditMode()"
-      />
-      <span>Modo Edición</span>
-    </label>
-  </header>
-
   <router-outlet />
 </main>

@@ -13,19 +13,17 @@
   }
 }
 
-// Layout Principal: Grid de 2 columnas (Sidebar + Main)
-// En móvil colapsa a 1 columna.
-.profile-layout {
-}
-
 // Sidebar de Navegación
 aside {
-  background: white; // O un color surface
+  background: white;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   position: sticky;
   top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 
   nav {
     display: flex;
@@ -34,53 +32,62 @@ aside {
 
     a {
       text-decoration: none;
-      color: #4b5563; // Gray-600
+      color: #4b5563;
       padding: 0.75rem 1rem;
       border-radius: 8px;
       font-weight: 500;
       transition: all 0.2s ease;
 
       &:hover {
-        background-color: #f3f4f6; // Gray-100
-        color: #111827; // Gray-900
+        background-color: #f3f4f6;
+        color: #111827;
       }
 
       &.active-link {
-        background-color: #e0e7ff; // Indigo-100
-        color: #4f46e5; // Indigo-600
+        background-color: #e0e7ff;
+        color: #4f46e5;
       }
+    }
+  }
+
+  // Toggle de edición en el sidebar
+  .edit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+    margin-top: auto;
+
+    &:hover {
+      background: #e5e7eb;
+    }
+
+    &:has(input:checked) {
+      background: #e0e7ff;
+      color: #4f46e5;
+    }
+
+    input {
+      accent-color: #4f46e5;
+      width: 1rem;
+      height: 1rem;
     }
   }
 }
 
-// Área Principal
+// Área Principal (sin header, más espacio)
 main {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-
-  // Header del contenido (donde está el toggle)
-  header {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      font-weight: 500;
-      color: #374151;
-
-      input {
-        accent-color: #4f46e5;
-        width: 1.2rem;
-        height: 1.2rem;
-      }
-    }
-  }
 }

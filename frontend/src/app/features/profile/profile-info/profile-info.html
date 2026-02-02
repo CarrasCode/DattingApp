@@ -1,25 +1,6 @@
-<!-- Feedback Messages -->
-@if (state().success) {
-  <div class="feedback-msg success">✅ Perfil actualizado correctamente</div>
-}
-@if (state().error) {
-  <div class="feedback-msg error">❌ {{ state().error }}</div>
-}
-
 @if (editMode()) {
   <!-- ==================== EDIT MODE ==================== -->
   <div class="edit-mode-container">
-    <div class="location-btn-wrapper">
-      <button
-        type="button"
-        class="btn-secondary"
-        (click)="updateLocation()"
-        [disabled]="state().loading"
-      >
-        📍 {{ state().loading ? 'Actualizando...' : 'Actualizar Ubicación' }}
-      </button>
-    </div>
-
     <form [formGroup]="profileEditor" (ngSubmit)="onSubmit()" class="profile-form">
       <!-- Sección: Información Personal -->
       <fieldset>
@@ -86,17 +67,24 @@
         </div>
       </fieldset>
 
-      <button
-        type="submit"
-        class="btn-primary"
-        [disabled]="!profileEditor.valid || state().loading"
-      >
-        @if (state().loading) {
-          ⏳ Guardando...
-        } @else {
-          💾 Guardar Cambios
-        }
-      </button>
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="updateLocation()"
+          [disabled]="loading()"
+        >
+          📍 {{ loading() ? 'Actualizando...' : 'Actualizar Ubicación' }}
+        </button>
+
+        <button type="submit" class="btn-primary" [disabled]="!profileEditor.valid || loading()">
+          @if (loading()) {
+            ⏳ Guardando...
+          } @else {
+            💾 Guardar Cambios
+          }
+        </button>
+      </div>
     </form>
   </div>
 } @else {
@@ -129,7 +117,7 @@
         @if (user.location) {
           <div class="info-row">
             <span class="icon">📍</span>
-            <span>{{ user.location }}</span>
+            <span>lat:{{ user.location.lat }} lng: {{ user.location.lng }}</span>
           </div>
         }
       </section>
@@ -142,7 +130,7 @@
           <div class="preference-item">
             <span class="label">Busco</span>
             <span class="value">
-              @switch (user.gender_preference?.gender) {
+              @switch (user.gender_preference) {
                 @case ('M') {
                   Hombres
                 }
