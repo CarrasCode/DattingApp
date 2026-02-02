@@ -33,7 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             }),
             catchError((refreshErr) => {
               // Si el refresh también falla, nos rendimos
-              localStorage.clear(); // Borramos todo
+              authService.logout(); // Borramos todo
               return throwError(() => refreshErr);
             }),
           );

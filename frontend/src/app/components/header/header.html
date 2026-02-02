@@ -5,7 +5,11 @@
       <li><a routerLink="/" routerLinkActive="active-link">Inicio</a></li>
       <li><a routerLink="/match" routerLinkActive="active-link">Matches</a></li>
       <li><a routerLink="/edit" routerLinkActive="active-link">Editar perfil</a></li>
-      <li><a routerLink="/login" routerLinkActive="active-link">Logueate</a></li>
+      @if (!isAuthenticated()) {
+        <li><a routerLink="/login" routerLinkActive="active-link">Logueate</a></li>
+      } @else {
+        <li><button (click)="logout()">Logout</button></li>
+      }
     </ul>
   </nav>
 </header>

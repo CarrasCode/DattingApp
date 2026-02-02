@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 export interface LoginCredentials {
   email: string;
@@ -23,7 +24,13 @@ interface LoginResponse {
 })
 export class AuthService {
   private readonly httpClient = inject(HttpClient);
+  isAuthenticated = signal<boolean>(!!localStorage.getItem('access_token'));
 
+  logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    this.isAuthenticated.set(false);
+  }
   login(credentials: LoginCredentials) {
     return this.httpClient
       .post<LoginResponse>(
@@ -33,8 +40,8 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          localStorage.setItem('access_token', response.access);
-          localStorage.setItem('refresh_token', response.refresh);
+          this.saveToken(response);
+          this.isAuthenticated.set(true);
         }),
       );
   }
@@ -48,8 +55,7 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          localStorage.setItem('access_token', response.access);
-          localStorage.setItem('refresh_token', response.refresh);
+          this.saveToken(response);
         }),
       );
   }
@@ -61,9 +67,13 @@ export class AuthService {
       })
       .pipe(
         tap((response) => {
-          localStorage.setItem('access_token', response.access);
-          localStorage.setItem('refresh_token', response.refresh);
+          this.saveToken(response);
         }),
       );
+  }
+
+  private saveToken(token: LoginResponse) {
+    localStorage.setItem('access_token', token.access);
+    localStorage.setItem('refresh_token', token.refresh);
   }
 }

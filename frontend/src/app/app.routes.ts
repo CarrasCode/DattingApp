@@ -5,12 +5,13 @@ import { ProfileEditor } from './components/profile/profile-editor/profile-edito
 import { Register } from './components/register/register';
 import { Chat } from './components/chat/chat';
 import { Matches } from './components/matches/matches';
+import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  { path: '', canActivate: [authGuard], component: Home },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
-  { path: 'match', component: Matches },
-  { path: 'chat/:id', component: Chat },
-  { path: 'edit', component: ProfileEditor },
+  { path: 'match', canActivate: [authGuard], component: Matches },
+  { path: 'chat/:id', canActivate: [authGuard], component: Chat },
+  { path: 'edit', canActivate: [authGuard], component: ProfileEditor },
 ];
