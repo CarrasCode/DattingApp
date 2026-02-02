@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { User } from '../models/user';
+import { PublicProfile } from '../models/user';
 
 export interface Match {
   id: string;
   created_at: string;
-  other_user: User;
+  other_user: PublicProfile;
   distance: string;
 }
 

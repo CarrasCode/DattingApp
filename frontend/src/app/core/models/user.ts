@@ -1,4 +1,4 @@
-export interface User {
+export interface PublicProfile {
   id: string;
   first_name: string;
   bio: string | null;
@@ -12,9 +12,7 @@ export interface User {
 export interface IGender {
   gender: 'M' | 'F' | 'NB' | 'O';
 }
-export interface IGenderPref {
-  gender: 'M' | 'F' | 'A';
-}
+
 export interface ICurrentProfile {
   id: string;
   first_name: string;
@@ -25,11 +23,11 @@ export interface ICurrentProfile {
   photos: IPhoto[];
   email: string;
   birth_date: string;
-  gender_preference: IGenderPref | null;
+  gender_preference: 'M' | 'F' | 'A' | null;
   max_distance: number | null;
   min_age: number | null;
   max_age: number | null;
-  location: string;
+  location: { lat: number; lng: number } | null;
 }
 export interface IEditProfile {
   first_name?: string;
@@ -37,7 +35,7 @@ export interface IEditProfile {
   work?: string | null;
   gender?: IGender;
   birth_date?: string;
-  gender_preference?: IGenderPref | null;
+  gender_preference?: 'M' | 'F' | 'A' | null;
   max_distance?: number | null;
   min_age?: number | null;
   max_age?: number | null;

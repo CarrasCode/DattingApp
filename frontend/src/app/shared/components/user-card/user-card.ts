@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { User } from '@core/models/user';
+import { PublicProfile } from '@core/models/user';
 
 @Component({
   selector: 'app-user-card',
@@ -8,7 +8,7 @@ import { User } from '@core/models/user';
   styleUrl: './user-card.scss',
 })
 export class UserCard {
-  user = input.required<User>();
+  user = input.required<PublicProfile>();
 
   swipe = output<'LIKE' | 'DISLIKE'>();
 

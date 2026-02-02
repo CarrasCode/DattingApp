@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { signal, computed } from '@angular/core';
-import { ICurrentProfile, IEditProfile, IPhoto, PhotoUpload, User } from '../models/user';
+import { ICurrentProfile, IEditProfile, IPhoto, PhotoUpload, PublicProfile } from '../models/user';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
@@ -9,7 +9,7 @@ import { tap } from 'rxjs';
 })
 export class UserService {
   private readonly httpClient = inject(HttpClient);
-  users = signal<User[]>([]);
+  users = signal<PublicProfile[]>([]);
   matchesCount = computed(() => this.users().length);
   currentUser = signal<ICurrentProfile | null>(null);
 
@@ -23,7 +23,7 @@ export class UserService {
 
   private getUsers() {
     this.httpClient
-      .get<User[]>(environment.apiUrl + '/users/profiles/')
+      .get<PublicProfile[]>(environment.apiUrl + '/users/profiles/')
       .subscribe({ next: (data) => this.users.set(data), error: (err) => console.log(err) });
   }
   private getCurrentUser() {
@@ -56,7 +56,7 @@ export class UserService {
         }),
       );
   }
-  undoRemove(user: User) {
+  undoRemove(user: PublicProfile) {
     this.users.update((prev) => [user, ...prev]);
   }
 
