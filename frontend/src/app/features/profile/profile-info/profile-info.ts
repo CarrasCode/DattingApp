@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { UserService } from '@core/services/user-service';
 import { IEditProfile } from '@core/models/user';
 import { ProfileState } from '../profile.state';
+import { ToastService } from '@core/services/toast-service';
 
 @Component({
   selector: 'app-profile-info',
@@ -14,16 +15,13 @@ import { ProfileState } from '../profile.state';
 })
 export class ProfileInfo {
   userService = inject(UserService);
-  profile = this.userService.currentUser;
   profileState = inject(ProfileState);
+  toastService = inject(ToastService);
+
+  profile = this.userService.currentUser;
   editMode = this.profileState.editMode;
 
-  state = signal({
-    loading: false,
-    error: null as string | null,
-    success: false,
-  });
-
+  loading = signal(false);
   constructor() {
     effect(() => {
       const user = this.profile();
@@ -59,44 +57,22 @@ export class ProfileInfo {
       console.log(this.profileEditor);
       return;
     }
-    this.state.set({
-      error: null,
-      loading: true,
-      success: false,
-    });
+    this.loading.set(true);
     try {
-      const response = await lastValueFrom(
-        this.userService.updateProfile(this.profileEditor.value as IEditProfile),
-      );
-
-      this.state.set({
-        loading: false,
-        success: true,
-        error: null,
-      });
-      console.log(response);
-      setTimeout(() => {
-        this.state.set({
-          loading: false,
-          success: false,
-          error: null,
-        });
-      }, 3000);
+      await lastValueFrom(this.userService.updateProfile(this.profileEditor.value as IEditProfile));
+      this.toastService.success('Perfil guardado!');
+      this.editMode.set(false);
     } catch (err) {
-      console.error(err);
-      this.state.set({
-        error: 'Ocurrio un error, prueba otra vez',
-        loading: false,
-        success: false,
-      });
+      this.toastService.error(`Error guardando perfil`);
+      console.log(err);
+    } finally {
+      this.loading.set(false);
     }
   }
 
   updateLocation() {
-    this.state.update((prev) => ({ ...prev, loading: true }));
-
     if (!navigator.geolocation) return;
-
+    this.loading.set(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const coords = {
@@ -105,23 +81,20 @@ export class ProfileInfo {
         };
         this.userService.updateProfile(coords).subscribe({
           next: () => {
-            console.log('Ubicacion actualizada');
+            this.toastService.success('Ubicacion actualizada');
             console.log(this.profile()?.location);
-            this.state.update((prev) => ({ ...prev, loading: false, success: true }));
           },
           error: () => {
-            this.state.set({ error: 'Problema con el backend', loading: false, success: false });
+            this.toastService.error('Error al actualizar ubiacion');
           },
+          complete: () => this.loading.set(false),
         });
       },
       (err) => {
         // ERROR: El usuario denegó permisos o falló el GPS
         console.error(err);
-        this.state.update((prev) => ({
-          ...prev,
-          loading: false,
-          error: 'No se pudo obtener ubicación',
-        }));
+        this.toastService.warning('Habilita permisos para obtener ubiacion');
+        this.loading.set(false);
       },
     );
   }

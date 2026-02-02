@@ -1,0 +1,79 @@
+// El contenedor se posiciona fijo en la esquina superior derecha
+:host {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999; // Por encima de todo
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none; // Permite clicks "a través" del contenedor vacío
+}
+
+.toast {
+  pointer-events: auto; // Pero los toasts SÍ reciben clicks
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 280px;
+  max-width: 400px;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  font-weight: 500;
+  animation: slideIn 0.25s ease-out;
+
+  // Colores según tipo
+  &.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+
+  &.error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  &.info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+  }
+
+  &.warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+  }
+
+  // Botón de cerrar
+  button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 0.75rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

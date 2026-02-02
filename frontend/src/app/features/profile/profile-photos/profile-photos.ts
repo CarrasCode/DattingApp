@@ -4,6 +4,7 @@ import { PhotoUpload } from '@core/models/user';
 import { UserService } from '@core/services/user-service';
 import { lastValueFrom } from 'rxjs';
 import { ProfileState } from '../profile.state';
+import { ToastService } from '@core/services/toast-service';
 
 @Component({
   selector: 'app-profile-photos',
@@ -14,12 +15,9 @@ import { ProfileState } from '../profile.state';
 export class ProfilePhotos {
   private readonly userService = inject(UserService);
   private readonly profileState = inject(ProfileState);
+  private readonly toasService = inject(ToastService);
   protected readonly editMode = this.profileState.editMode;
-  protected readonly state = signal({
-    loading: false,
-    error: null as string | null,
-    success: false,
-  });
+  protected readonly loading = signal(false);
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly photos = computed(() => this.userService.currentUser()?.photos ?? []);
 
@@ -41,69 +39,29 @@ export class ProfilePhotos {
       console.log(this.photoForm);
       return;
     }
-    this.state.set({
-      error: null,
-      loading: true,
-      success: false,
-    });
+    this.loading.set(true);
     try {
-      const response = await lastValueFrom(
-        this.userService.uploadPhoto(this.photoForm.value as PhotoUpload),
-      );
-
-      this.state.set({
-        loading: false,
-        success: true,
-        error: null,
-      });
-      console.log(response);
-      setTimeout(() => {
-        this.state.set({
-          loading: false,
-          success: false,
-          error: null,
-        });
-      }, 3000);
+      await lastValueFrom(this.userService.uploadPhoto(this.photoForm.value as PhotoUpload));
+      this.toasService.success('Foto subida!');
     } catch (err) {
+      this.toasService.error('Error subiendo foto');
       console.error(err);
-      this.state.set({
-        error: 'Ocurrio un error, prueba otra vez',
-        loading: false,
-        success: false,
-      });
     } finally {
+      this.loading.set(false);
       this.selectedFile.set(null);
     }
   }
   async onDeletePhoto(photoId: string) {
-    this.state.set({
-      error: null,
-      loading: true,
-      success: false,
-    });
+    this.loading.set(true);
     try {
       await lastValueFrom(this.userService.deletePhoto(photoId));
 
-      this.state.set({
-        loading: false,
-        success: true,
-        error: null,
-      });
-
-      setTimeout(() => {
-        this.state.set({
-          loading: false,
-          success: false,
-          error: null,
-        });
-      }, 3000);
+      this.toasService.success('Foto eliminada!');
     } catch (err) {
+      this.toasService.error('Error eliminando foto');
       console.error(err);
-      this.state.set({
-        error: 'Ocurrio un error, prueba otra vez',
-        loading: false,
-        success: false,
-      });
+    } finally {
+      this.loading.set(false);
     }
   }
 }
