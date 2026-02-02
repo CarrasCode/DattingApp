@@ -23,15 +23,21 @@ interface WSReceivePayload {
 })
 export class ChatService {
   private http = inject(HttpClient);
-  // 1. La variable guarda la conexión activa, puede ser null al principio
+  // La variable guarda la conexión activa, puede ser null al principio
   private socket$: WebSocketSubject<WSSendPayload | WSReceivePayload> | null = null;
   messages = signal<ChatMessage[]>([]);
-  // 2. El State local
 
-  connect(matchId: string, currentUserId: string) {
+  async connect(matchId: string, currentUserId: string) {
+    // 1. Limpiar estado anterior (Evitar ghosts)
+    this.messages.set([]);
+
+    // 2. Desconectar websocket anterior si existía (Evitar doble conexión)
+    this.disconnect();
+
+    await this.getHistory(matchId);
+
     const token = localStorage.getItem('access_token');
     const url = `${environment.wsUrl}/${matchId}/?token=${token}`;
-    this.getHistory(matchId);
     // 3. Crear la conexión
     this.socket$ = webSocket(url);
 
