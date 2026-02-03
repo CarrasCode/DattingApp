@@ -71,32 +71,15 @@ export class ProfileInfo {
     }
   }
 
-  updateLocation() {
-    if (!navigator.geolocation) return;
+  async updateLocation() {
     this.loading.set(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-        this.userService.updateProfile(coords).subscribe({
-          next: () => {
-            this.toastService.success('Ubicacion actualizada');
-            console.log(this.profile()?.location);
-          },
-          error: () => {
-            this.toastService.error('Error al actualizar ubiacion');
-          },
-          complete: () => this.loading.set(false),
-        });
-      },
-      (err) => {
-        // ERROR: El usuario denegó permisos o falló el GPS
-        console.error(err);
-        this.toastService.warning('Habilita permisos para obtener ubiacion');
-        this.loading.set(false);
-      },
-    );
+    try {
+      await this.userService.updateLocation();
+      this.toastService.success('Ubicación actualizada');
+    } catch {
+      this.toastService.error('Error al actualizar ubicación');
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

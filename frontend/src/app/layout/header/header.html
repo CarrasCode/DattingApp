@@ -20,6 +20,9 @@
 
       @if (!isAuthenticated()) {
         <li><a routerLink="/login" class="btn-login" routerLinkActive="active">Entrar</a></li>
+        <li>
+          <a routerLink="/register" class="btn-login" routerLinkActive="active">Registrarse</a>
+        </li>
       } @else {
         <li><button (click)="logout()" class="btn-logout">Salir</button></li>
       }

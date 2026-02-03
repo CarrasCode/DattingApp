@@ -1,9 +1,250 @@
-<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <label for="email">Email</label>
-  <input id="email" type="email" formControlName="email" />
-  <label for="password">Password</label>
-  <input id="password" type="password" formControlName="password" />
-  <label for="password_confirm">Password</label>
-  <input id="password" type="password" formControlName="password_confirm" />
-  <button type="submit">Enviar</button>
-</form>
+<div class="register-wizard">
+  <!-- Barra de progreso -->
+  <div class="progress-bar">
+    @for (step of steps; track step.title; let i = $index) {
+      <div
+        class="progress-step"
+        [class.active]="i === currentStep()"
+        [class.completed]="i < currentStep()"
+      >
+        <div class="step-circle">
+          @if (i < currentStep()) {
+            ✓
+          } @else {
+            {{ step.icon }}
+          }
+        </div>
+        <span class="step-label">{{ step.title }}</span>
+      </div>
+      @if (i < steps.length - 1) {
+        <div class="progress-line" [class.completed]="i < currentStep()"></div>
+      }
+    }
+  </div>
+
+  <!-- Contenido del paso actual -->
+  <div class="step-content">
+    <!-- PASO 1: CUENTA -->
+    @if (currentStep() === 0) {
+      <div class="step-panel">
+        <h2>Crea tu cuenta 📧</h2>
+        <p class="subtitle">Introduce tus credenciales de acceso</p>
+
+        <form [formGroup]="accountForm">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email" placeholder="tu@email.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password_confirm">Confirmar contraseña</label>
+            <input
+              type="password"
+              id="password_confirm"
+              formControlName="password_confirm"
+              placeholder="Repite la contraseña"
+            />
+            @if (!passwordsMatch() && accountForm.get('password_confirm')?.dirty) {
+              <span class="error-hint">Las contraseñas no coinciden</span>
+            }
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- PASO 2: SOBRE TI -->
+    @if (currentStep() === 1) {
+      <div class="step-panel">
+        <h2>Sobre ti 👤</h2>
+        <p class="subtitle">Cuéntanos un poco sobre ti</p>
+
+        <form [formGroup]="profileForm">
+          <div class="form-group">
+            <label for="first_name">Nombre</label>
+            <input
+              type="text"
+              id="first_name"
+              formControlName="first_name"
+              placeholder="Tu nombre"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="birth_date">Fecha de nacimiento</label>
+            <input type="date" id="birth_date" formControlName="birth_date" />
+          </div>
+
+          <div class="form-group">
+            <label>Género</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" formControlName="gender" value="M" />
+                <span>Hombre</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" formControlName="gender" value="F" />
+                <span>Mujer</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" formControlName="gender" value="NB" />
+                <span>No binario</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" formControlName="gender" value="O" />
+                <span>Otro</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="work">Trabajo (opcional)</label>
+            <input type="text" id="work" formControlName="work" placeholder="¿En qué trabajas?" />
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Bio (opcional)</label>
+            <textarea
+              id="bio"
+              formControlName="bio"
+              placeholder="Cuéntanos algo sobre ti..."
+              rows="3"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- PASO 3: PREFERENCIAS -->
+    @if (currentStep() === 2) {
+      <div class="step-panel">
+        <h2>Preferencias 💘</h2>
+        <p class="subtitle">¿Qué estás buscando?</p>
+
+        <form [formGroup]="preferencesForm">
+          <div class="form-group">
+            <label>Busco</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" formControlName="gender_preference" value="M" />
+                <span>Hombres</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" formControlName="gender_preference" value="F" />
+                <span>Mujeres</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" formControlName="gender_preference" value="A" />
+                <span>Cualquiera</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Rango de edad</label>
+            <div class="range-inputs">
+              <div class="range-input">
+                <span>Mínimo</span>
+                <input type="number" formControlName="min_age" min="18" max="99" />
+              </div>
+              <span class="range-separator">—</span>
+              <div class="range-input">
+                <span>Máximo</span>
+                <input type="number" formControlName="max_age" min="18" max="99" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="max_distance"
+              >Distancia máxima: {{ preferencesForm.get('max_distance')?.value }} km</label
+            >
+            <input
+              type="range"
+              id="max_distance"
+              formControlName="max_distance"
+              min="5"
+              max="200"
+            />
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- PASO 4: FOTO -->
+    @if (currentStep() === 3) {
+      <div class="step-panel">
+        <h2>Tu foto 📷</h2>
+        <p class="subtitle">Sube una foto para tu perfil</p>
+
+        <div class="photo-upload-area">
+          @if (photoPreview()) {
+            <div class="photo-preview">
+              <img [src]="photoPreview()" alt="Preview" />
+              <button type="button" class="btn-change" (click)="fileInput.click()">
+                Cambiar foto
+              </button>
+            </div>
+          } @else {
+            <div class="photo-placeholder" (click)="fileInput.click()">
+              <span class="upload-icon">📷</span>
+              <p>Haz clic para subir una foto</p>
+              <small>La foto es obligatoria</small>
+            </div>
+          }
+          <input
+            type="file"
+            #fileInput
+            accept="image/*"
+            (change)="onPhotoSelected($event)"
+            hidden
+          />
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Error message -->
+  @if (error()) {
+    <div class="error-message">⚠️ {{ error() }}</div>
+  }
+
+  <!-- Navegación -->
+  <div class="wizard-nav">
+    @if (currentStep() > 0) {
+      <button type="button" class="btn-secondary" (click)="prevStep()" [disabled]="loading()">
+        ← Atrás
+      </button>
+    } @else {
+      <div></div>
+    }
+
+    @if (currentStep() < steps.length - 1) {
+      <button type="button" class="btn-primary" (click)="nextStep()" [disabled]="!isStepValid()">
+        Siguiente →
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="btn-primary btn-submit"
+        (click)="onSubmit()"
+        [disabled]="!isStepValid() || loading()"
+      >
+        @if (loading()) {
+          ⏳ Creando cuenta...
+        } @else {
+          🚀 Crear cuenta
+        }
+      </button>
+    }
+  </div>
+</div>
