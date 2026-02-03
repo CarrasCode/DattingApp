@@ -1,13 +1,35 @@
-<h3>Hello {{ userService.currentUser()?.first_name }}</h3>
-@defer (on viewport) {
-  @for (user of users(); track $index) {
-    <app-user-card [user]="user" (swipe)="onSwipe(user.id, $event)"></app-user-card>
+<section class="home-container">
+  <header class="home-header">
+    <h2>¡Hola, {{ userService.currentUser()?.first_name }}! 👋</h2>
+    <p class="subtitle">Descubre personas cerca de ti</p>
+  </header>
+
+  @defer (on viewport) {
+    @if (users().length > 0) {
+      <div class="cards-grid">
+        @for (user of users(); track user.id) {
+          <app-user-card [user]="user" (swipe)="onSwipe(user.id, $event)"></app-user-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="emoji">🔍</span>
+        <h3>No hay más perfiles</h3>
+        <p>Vuelve más tarde o amplía tu rango de búsqueda</p>
+      </div>
+    }
+  } @placeholder {
+    <div class="loading-state">
+      <p>⏳ Preparando perfiles...</p>
+    </div>
+  } @loading {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando...</p>
+    </div>
   }
-} @placeholder {
-  <p>Cargando modulo de citas...</p>
-} @loading {
-  <p>Bajando Datos...</p>
-}
+</section>
+
 @if (showMatchModal()) {
   <app-match-modal (modalEmit)="cerrarModal()" />
 }

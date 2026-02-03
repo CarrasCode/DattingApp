@@ -1,0 +1,83 @@
+<!-- Backdrop -->
+<div class="modal-backdrop" (click)="onClose()"></div>
+
+<!-- Modal Content -->
+<div class="modal-content">
+  <!-- Botón cerrar -->
+  <button class="btn-close" (click)="onClose()">✕</button>
+
+  <!-- Galería de fotos -->
+  <div class="photo-gallery">
+    @if (user().photos.length > 0) {
+      <img [src]="user().photos[currentPhotoIndex].image" [alt]="user().first_name" />
+
+      <!-- Navegación de fotos -->
+      @if (user().photos.length > 1) {
+        <div class="photo-nav">
+          <button
+            class="nav-btn prev"
+            (click)="prevPhoto(); $event.stopPropagation()"
+            [disabled]="currentPhotoIndex === 0"
+          >
+            ‹
+          </button>
+          <button
+            class="nav-btn next"
+            (click)="nextPhoto(); $event.stopPropagation()"
+            [disabled]="currentPhotoIndex === user().photos.length - 1"
+          >
+            ›
+          </button>
+        </div>
+
+        <!-- Indicadores de foto -->
+        <div class="photo-indicators">
+          @for (photo of user().photos; track photo.id; let i = $index) {
+            <span class="dot" [class.active]="i === currentPhotoIndex"></span>
+          }
+        </div>
+      }
+    } @else {
+      <div class="no-photo">
+        <span>📷</span>
+        <p>Sin fotos</p>
+      </div>
+    }
+  </div>
+
+  <!-- Información del usuario -->
+  <div class="user-details">
+    <div class="user-header">
+      <h2>
+        {{ user().first_name }}, <span class="age">{{ user().age }}</span>
+      </h2>
+      <p class="distance">📍 A {{ user().distance_km }} km de ti</p>
+    </div>
+
+    @if (user().work) {
+      <div class="info-item">
+        <span class="icon">💼</span>
+        <span>{{ user().work }}</span>
+      </div>
+    }
+
+    @if (user().bio) {
+      <div class="bio-section">
+        <h4>Sobre mí</h4>
+        <p>{{ user().bio }}</p>
+      </div>
+    }
+  </div>
+
+  <!-- Acciones -->
+  <div class="modal-actions">
+    <button class="btn-dislike" (click)="onSwipe('DISLIKE')">
+      <span>✕</span>
+      <small>Pasar</small>
+    </button>
+    <button class="btn-like" (click)="onSwipe('LIKE')">
+      <span>♥</span>
+      <small>Me gusta</small>
+    </button>
+  </div>
+</div>

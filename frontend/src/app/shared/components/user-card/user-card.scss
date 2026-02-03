@@ -1,0 +1,163 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 10px 40px -10px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+// =====================
+// IMAGEN PRINCIPAL
+// =====================
+.card-image {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.03);
+  }
+
+  .no-photo {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    display: grid;
+    place-items: center;
+    font-size: 4rem;
+    opacity: 0.5;
+  }
+}
+
+// Hint de más info
+.more-info-hint {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  .card-image:hover & {
+    opacity: 1;
+  }
+}
+
+// Overlay con gradiente para legibilidad
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 3rem 1.5rem 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  color: white;
+}
+
+.user-info {
+  h3 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+
+    .age {
+      font-weight: 400;
+    }
+  }
+
+  .distance {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+}
+
+// =====================
+// BIO
+// =====================
+.card-bio {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f3f4f6;
+
+  p {
+    margin: 0;
+    color: #4b5563;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// =====================
+// BOTONES DE ACCIÓN
+// =====================
+.card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.25rem;
+  border-top: 1px solid #f3f4f6;
+
+  button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+
+  .btn-dislike {
+    background: #fee2e2;
+    color: #dc2626;
+
+    &:hover {
+      background: #fecaca;
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    }
+  }
+
+  .btn-like {
+    background: #d1fae5;
+    color: #059669;
+
+    &:hover {
+      background: #a7f3d0;
+      box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+    }
+  }
+}

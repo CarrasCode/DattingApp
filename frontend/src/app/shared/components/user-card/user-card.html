@@ -1,12 +1,42 @@
 <div class="card">
-  <h3>{{ user().first_name }}</h3>
-  <p>Edad: {{ user().age }}</p>
-  <p>Distancia: {{ user().distance_km }} Km</p>
-  <p>Bio: {{ user().bio }}</p>
+  <!-- Imagen Principal con overlay de info (click abre modal) -->
+  <div class="card-image" (click)="openDetail()">
+    @if (user().photos[0]) {
+      <img [src]="user().photos[0].image" [alt]="user().first_name" />
+    } @else {
+      <div class="no-photo">
+        <span>📷</span>
+      </div>
+    }
 
-  @if (user().photos[0]) {
-    <img [src]="user().photos[0].image" alt="" />
-  }
-  <button (click)="onSwipe('DISLIKE')">❌</button>
-  <button (click)="onSwipe('LIKE')">✅</button>
+    <!-- Info superpuesta sobre la imagen -->
+    <div class="card-overlay">
+      <div class="user-info">
+        <h3>
+          {{ user().first_name }}, <span class="age">{{ user().age }}</span>
+        </h3>
+        <p class="distance">📍 {{ user().distance_km }} km</p>
+      </div>
+    </div>
+
+    <!-- Indicador de más info -->
+    <div class="more-info-hint">
+      <span>ℹ️ Ver más</span>
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="card-actions">
+    <button class="btn-dislike" (click)="onSwipe('DISLIKE')" title="No me interesa">
+      <span>✕</span>
+    </button>
+    <button class="btn-like" (click)="onSwipe('LIKE')" title="Me gusta">
+      <span>♥</span>
+    </button>
+  </div>
 </div>
+
+<!-- Modal de detalle -->
+@if (showDetail()) {
+  <app-user-detail-modal [user]="user()" (closeModal)="closeDetail()" (swipe)="onSwipe($event)" />
+}
