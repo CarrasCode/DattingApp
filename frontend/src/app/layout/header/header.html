@@ -1,6 +1,6 @@
 <header class="app-header">
   <div class="logo">
-    <h1>
+    <h1 routerLink="/">
       {{ appName() }}
       @if (matchesCount() > 0) {
         <span class="badge">{{ matchesCount() }}</span>
@@ -10,20 +10,19 @@
 
   <nav class="main-nav">
     <ul>
-      <li>
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-          >Inicio</a
-        >
-      </li>
-      <li><a routerLink="/matches" routerLinkActive="active">Matches</a></li>
-      <li><a routerLink="/profile" routerLinkActive="active">Perfil</a></li>
-
       @if (!isAuthenticated()) {
         <li><a routerLink="/login" class="btn-login" routerLinkActive="active">Entrar</a></li>
         <li>
           <a routerLink="/register" class="btn-login" routerLinkActive="active">Registrarse</a>
         </li>
       } @else {
+        <li>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            >Inicio</a
+          >
+        </li>
+        <li><a routerLink="/matches" routerLinkActive="active">Matches</a></li>
+        <li><a routerLink="/profile" routerLinkActive="active">Perfil</a></li>
         <li><button (click)="logout()" class="btn-logout">Salir</button></li>
       }
     </ul>

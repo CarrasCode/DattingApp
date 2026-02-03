@@ -1,7 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@core/services/auth-service';
-import { UserService } from '@core/services/user-service';
 
 @Component({
   selector: 'app-header',
@@ -11,7 +10,6 @@ import { UserService } from '@core/services/user-service';
 })
 export class Header {
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   protected isAuthenticated = this.authService.isAuthenticated;
 
@@ -20,7 +18,8 @@ export class Header {
 
   protected logout() {
     this.authService.logout();
-    this.userService.clearUserData();
+    // ¡Ya no necesitamos limpiar manualmente!
+    // Los servicios reaccionan automáticamente al cambio de isAuthenticated
     this.router.navigate(['/login']);
   }
 }
