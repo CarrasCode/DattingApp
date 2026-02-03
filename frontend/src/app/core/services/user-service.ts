@@ -1,22 +1,33 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, effect } from '@angular/core';
 import { signal, computed } from '@angular/core';
 import { ICurrentProfile, IEditProfile, IPhoto, PhotoUpload, PublicProfile } from '../models/user';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
+import { AuthService } from './auth-service';
+
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private readonly httpClient = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
   users = signal<PublicProfile[]>([]);
   matchesCount = computed(() => this.users().length);
   currentUser = signal<ICurrentProfile | null>(null);
   mainPhoto = computed(() => this.currentUser()?.photos.find((photo) => photo.is_main));
 
   constructor() {
-    this.refreshUsers();
-    this.refreshCurrentUser();
+    // Reacciona automáticamente a cambios en el estado de autenticación
+    effect(() => {
+      if (this.authService.isAuthenticated()) {
+        this.refreshUsers();
+        this.refreshCurrentUser();
+      } else {
+        this.clearUserData();
+      }
+    });
   }
 
   private removeUser(id: string) {
@@ -24,7 +35,7 @@ export class UserService {
   }
 
   // Limpiar datos al cerrar sesión
-  clearUserData() {
+  private clearUserData() {
     this.currentUser.set(null);
     this.users.set([]);
   }

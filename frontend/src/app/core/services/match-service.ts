@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { PublicProfile } from '../models/user';
+import { AuthService } from './auth-service';
 
 export interface Match {
   id: string;
@@ -14,18 +15,34 @@ export interface Match {
   providedIn: 'root',
 })
 export class MatchService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
   matches = signal<Match[]>([]);
 
   constructor() {
-    this.getMatches();
+    // Reacciona automáticamente a cambios en el estado de autenticación
+    effect(() => {
+      if (this.authService.isAuthenticated()) {
+        this.refreshMatches();
+      } else {
+        this.clearMatches();
+      }
+    });
   }
-  getMatches() {
+
+  // Método público para refrescar matches
+  refreshMatches() {
     this.http.get<Match[]>(environment.apiUrl + '/social/matches/').subscribe({
       next: (data) => {
         this.matches.set(data);
       },
       error: (err) => console.log(err),
     });
+  }
+
+  // Limpiar datos al cerrar sesión
+  private clearMatches() {
+    this.matches.set([]);
   }
 }

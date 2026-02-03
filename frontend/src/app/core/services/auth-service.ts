@@ -55,6 +55,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.saveToken(response);
+          this.isAuthenticated.set(true); // ¡Dispara los effects!
         }),
       );
   }
