@@ -15,22 +15,59 @@ export class UserService {
   mainPhoto = computed(() => this.currentUser()?.photos.find((photo) => photo.is_main));
 
   constructor() {
-    this.getUsers();
-    this.getCurrentUser();
+    this.refreshUsers();
+    this.refreshCurrentUser();
   }
+
   private removeUser(id: string) {
     this.users.update((users) => users.filter((u) => u.id !== id));
   }
 
-  private getUsers() {
+  // Limpiar datos al cerrar sesión
+  clearUserData() {
+    this.currentUser.set(null);
+    this.users.set([]);
+  }
+
+  // Métodos públicos para refrescar datos
+  refreshUsers() {
     this.httpClient
       .get<PublicProfile[]>(environment.apiUrl + '/users/profiles/')
       .subscribe({ next: (data) => this.users.set(data), error: (err) => console.log(err) });
   }
-  private getCurrentUser() {
+
+  refreshCurrentUser() {
     this.httpClient
       .get<ICurrentProfile>(environment.apiUrl + '/users/profiles/me/')
       .subscribe({ next: (data) => this.currentUser.set(data), error: (err) => console.log(err) });
+  }
+
+  // Captura ubicación del navegador y la guarda en el perfil
+  updateLocation(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation no soportado'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+          this.updateProfile(coords).subscribe({
+            next: () => resolve(),
+            error: (err) => reject(err),
+          });
+        },
+        (err) => {
+          console.warn('Ubicación denegada:', err.message);
+          // No rechazamos, solo resolvemos sin ubicación (es opcional)
+          resolve();
+        },
+      );
+    });
   }
 
   sendSwipe(targetId: string, action: 'LIKE' | 'DISLIKE') {
@@ -54,6 +91,8 @@ export class UserService {
             if (!prev) return null;
             return { ...prev, ...updateData };
           });
+          // Refrescar usuarios ya que las preferencias pueden haber cambiado
+          this.refreshUsers();
         }),
       );
   }
