@@ -22,7 +22,7 @@ class UserPhotoUploadSerializer(serializers.ModelSerializer):
     Incluye validación de tamaño y formato.
     """
 
-    MAX_SIZE_MB = 10
+    MAX_SIZE_MB = 5
     MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024
 
     class Meta:

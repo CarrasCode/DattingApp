@@ -15,7 +15,7 @@ class ImageConfig:
     format: str = "JPEG"
     extension: str = ".jpg"
     quality: int = 85
-    max_dimension: int = 1080
+    max_dimension: int = 480
 
 
 IMAGE_SETTINGS = ImageConfig()
